@@ -1,5 +1,7 @@
 'Rename .env.example to .env'
 
+'Edit files in .env'
+
 'virtualenv env'
 
 '.\env\Scripts\activate.ps1'

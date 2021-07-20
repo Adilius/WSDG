@@ -5,6 +5,8 @@ import json
 import sys
 import time
 import re
+from selenium import webdriver
+from chromedriver_py import binary_path
 
 print('AdiliusWSDG starting.')
 
@@ -21,8 +23,10 @@ print('Retriving variables from .env file...')
 load_dotenv()
 WEBHALLEN_USERNAME = os.getenv('WEBHALLEN_USERNAME')
 WEBHALLEN_PASSWORD = os.getenv('WEBHALLEN_PASSWORD')
+WEBHALLEN_USER_ID = os.getenv('WEBHALLEN_USER_ID')
 print('Username:',WEBHALLEN_USERNAME)
 print('Password:', WEBHALLEN_PASSWORD)
+print('User ID:', WEBHALLEN_USER_ID)
 
 if WEBHALLEN_USERNAME == 'example_email' or WEBHALLEN_PASSWORD == 'example_password':
     print('Example username and password detected!')
@@ -43,7 +47,7 @@ BODY = json.dumps({
 
 session = requests.Session()
 
-print('Making login request...')
+print('Seinding login request...')
 response = session.post(
     url=LOGIN_URL,
     headers=HEADERS,
@@ -61,12 +65,12 @@ elif response.status_code != 200:
 else:
     print('Login success!')
 
-for cookie in session.cookies:
-    user_id = re.search(r'%\d?\D([0-9]+)',cookie.value)
-    print("User ID:", user_id)
-    break
+# for cookie in session.cookies:
+#     user_id = re.search(r'%\d?\D([0-9]+)',cookie.value)
+#     print("User ID:", user_id)
+#     break
 
-print('Supply drop page request...')
+print('Seding supply drop page request...')
 response = session.get(
     url = SUPPLY_DROP_URL
 )
@@ -94,3 +98,6 @@ print('Activity drop in: ' + str(response_text['crateTypes'][1]['nextResupplyIn'
 
 print('Level up drop avaliable:', 'True' if response_text['crateTypes'][2]['openableCount'] > 0 else 'False')
 print('Level up drop progress: ' + str(response_text['crateTypes'][2]['progress'])[2:4] + "%")
+
+driver = webdriver.Chrome(executable_path=binary_path)
+driver.get('https://www.webhallen.com/se/')
