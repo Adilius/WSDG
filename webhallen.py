@@ -5,6 +5,8 @@ import json
 import sys
 import time
 
+print('AdiliusWSDG starting.')
+
 def get_drop_time(airplane_time: float):
     current_time = round(time.time())
     time_difference = airplane_time - current_time
@@ -14,9 +16,15 @@ def get_drop_time(airplane_time: float):
     seconds = (time_difference - days*86400 - hours*3600 - minutes*60)
     return days, hours, minutes, seconds
 
+print('Retriving variables from .env file...')
 load_dotenv()
 WEBHALLEN_USERNAME = os.getenv('WEBHALLEN_USERNAME')
 WEBHALLEN_PASSWORD = os.getenv('WEBHALLEN_PASSWORD')
+
+if WEBHALLEN_USERNAME == 'example_email' or WEBHALLEN_PASSWORD == 'example_password':
+    print('Example username and password detected!')
+    print('You need to change your .env file to continue...')
+    sys.exit()
 
 LOGIN_URL = "https://www.webhallen.com/api/login"
 
@@ -31,7 +39,6 @@ BODY = json.dumps({
 
 session = requests.Session()
 
-print('Variables from .env file')
 print('Username:',WEBHALLEN_USERNAME)
 print('Password:', WEBHALLEN_PASSWORD)
 
@@ -41,10 +48,14 @@ response = session.post(
     headers=HEADERS,
     data=BODY
 )
-
-if response.status_code != 200:
-    print('Login failed. Exiting...')
+if response.status_code == 403:
+    print('Forbidden access')
+    print('Possibly wrongly set username and password')
+    print('Exiting...')
+    sys.exit()
+elif response.status_code != 200:
     print('Status code:', response.status_code)
+    print('Login failed. Exiting...')
     sys.exit()
 else:
     print('Login success!')
