@@ -4,6 +4,7 @@ import requests
 import json
 import sys
 import time
+import re
 
 print('AdiliusWSDG starting.')
 
@@ -20,6 +21,8 @@ print('Retriving variables from .env file...')
 load_dotenv()
 WEBHALLEN_USERNAME = os.getenv('WEBHALLEN_USERNAME')
 WEBHALLEN_PASSWORD = os.getenv('WEBHALLEN_PASSWORD')
+print('Username:',WEBHALLEN_USERNAME)
+print('Password:', WEBHALLEN_PASSWORD)
 
 if WEBHALLEN_USERNAME == 'example_email' or WEBHALLEN_PASSWORD == 'example_password':
     print('Example username and password detected!')
@@ -27,6 +30,7 @@ if WEBHALLEN_USERNAME == 'example_email' or WEBHALLEN_PASSWORD == 'example_passw
     sys.exit()
 
 LOGIN_URL = "https://www.webhallen.com/api/login"
+SUPPLY_DROP_URL = 'https://www.webhallen.com/api/supply-drop'
 
 HEADERS = {
     'Content-Type': 'application/json'
@@ -38,9 +42,6 @@ BODY = json.dumps({
 })
 
 session = requests.Session()
-
-print('Username:',WEBHALLEN_USERNAME)
-print('Password:', WEBHALLEN_PASSWORD)
 
 print('Making login request...')
 response = session.post(
@@ -60,7 +61,10 @@ elif response.status_code != 200:
 else:
     print('Login success!')
 
-SUPPLY_DROP_URL = 'https://www.webhallen.com/api/supply-drop'
+for cookie in session.cookies:
+    user_id = re.search(r'%\d?\D([0-9]+)',cookie.value)
+    print("User ID:", user_id)
+    break
 
 print('Supply drop page request...')
 response = session.get(
