@@ -12,7 +12,7 @@ print('AdiliusWSDG starting.')
 
 def get_drop_time(airplane_time: float):
     current_time = round(time.time())
-    time_difference = airplane_time - current_time
+    time_difference = int(airplane_time - current_time)
     days = time_difference // 86400
     hours = (time_difference - days*86400) // 3600
     minutes = (time_difference - days*86400 - hours*3600) // 60
@@ -86,7 +86,8 @@ else:
 response_text = json.loads(response.text)
 days, hours, minutes, seconds = get_drop_time(response_text['nextDropTime'])
 print('Supply drop avaliable:', 'True' if response_text['crateTypes'][0]['openableCount'] > 0 else 'False')
-print(
+if days + hours + minutes + seconds > 0:
+    print(
     'Supply drop time left:',
     (str(days) + " days") if days > 0 else '',
     (str(hours) + " hours") if hours > 0 else '',
@@ -99,5 +100,5 @@ print('Activity drop in: ' + str(response_text['crateTypes'][1]['nextResupplyIn'
 print('Level up drop avaliable:', 'True' if response_text['crateTypes'][2]['openableCount'] > 0 else 'False')
 print('Level up drop progress: ' + str(response_text['crateTypes'][2]['progress'])[2:4] + "%")
 
-driver = webdriver.Chrome(executable_path=binary_path)
-driver.get('https://www.webhallen.com/se/')
+#driver = webdriver.Chrome(executable_path=binary_path)
+#driver.get('https://www.webhallen.com/se/')
