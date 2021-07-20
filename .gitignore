@@ -138,6 +138,3 @@ dmypy.json
 cython_debug/
 
 ###### CUSTOM RULES #########
-
-# Ignore changes to .env file containing username and password
-.env
