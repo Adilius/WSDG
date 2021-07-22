@@ -2,8 +2,10 @@
 
 'Edit files in .env'
 
-'virtualenv env'
+'python -m venv env'
 
 '.\env\Scripts\activate.ps1'
 
 'pip install -r requirements.txt'
+
+'python .\AdiliusWSDG.py'

@@ -4,7 +4,6 @@ import requests
 import json
 import sys
 import time
-import re
 import urllib.parse
 
 print('AdiliusWSDG starting.')
@@ -22,7 +21,7 @@ def get_drop_time(airplane_time: float):
 
 # Loads username and password from .env
 def load_variables():
-    print('Retriving variables from .env file...')
+    print('Retriving variables from .env file')
     load_dotenv()
     WEBHALLEN_USERNAME = os.getenv('WEBHALLEN_USERNAME')
     WEBHALLEN_PASSWORD = os.getenv('WEBHALLEN_PASSWORD')
@@ -70,7 +69,7 @@ def login_request(session):
 # Params: Session after login success
 def supply_drop_request(session):
     SUPPLY_DROP_URL = 'https://www.webhallen.com/api/supply-drop'
-    print('Sending supply drop page request...')
+    print('Sending supply drop status request...')
     response = session.get(
         url = SUPPLY_DROP_URL
     )
@@ -80,12 +79,13 @@ def supply_drop_request(session):
         print('Status code:', response.status_code)
         sys.exit()
     else:
-        print('Supply drop page success!')
+        print('Supply drop status success!')
     return response
 
 # Sends request to collect weekly supply drop
 # Params: Session after login success
-def weekly_supply_drop_request(session):
+# Params: Webhallen User ID
+def weekly_supply_drop_request(session, WEBHALLEN_USER_ID):
     URL = 'https://www.webhallen.com/api/supply-drop'
 
     headers = {
@@ -94,24 +94,98 @@ def weekly_supply_drop_request(session):
         'dnt': '1',
         'sec-ch-ua-mobile': '?0',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'accept': '*/*',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-dest': 'empty',
+        'origin': 'https://www.webhallen.com',
+        'referer': 'https://www.webhallen.com/se/member/'+str(WEBHALLEN_USER_ID)+'/supply-drop',
+        'accept-language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7',
+        'content-length': '0',
+        'region': 'se'
+    }
+
+    print('Sending request to grab weekly supply drop...')
+    response = session.post(
+        url=URL,
+        headers=headers
+    )
+
+    if response.status_code == 403:
+        print('Status code 403! No weekly supply drop to grab')
+        return
+    print(response)
+
+# Sends request to collect activity supply drop
+# Params: Session after login success
+# Params: Webhallen User ID
+def activity_supply_drop_request(session, WEBHALLEN_USER_ID):
+    URL = 'https://www.webhallen.com/api/supply-drop'
+
+    headers = {
+        'authority': 'www.webhallen.com',
+        'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
+        'dnt': '1',
+        'sec-ch-ua-mobile': '?0',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
+        'content-type': 'application/json',
         'accept': '*/*',
         'origin': 'https://www.webhallen.com',
         'sec-fetch-site': 'same-origin',
         'sec-fetch-mode': 'cors',
         'sec-fetch-dest': 'empty',
-        'referer': 'https://www.webhallen.com/se/member/2476589/supply-drop',
-        'accept-language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7',
-        'if-none-match': 'W/"baba8c477accc6360515317229897469"',
-        'content-length': '0',
-        'region': 'se',
-        'cookie': 'ref=www.google.com; last_visit=1626944502; webhallen_auth=%7B%22user_id%22%3A2476589%2C%22token%22%3A%22VBVMO8uoDoQKZt7VspQLql3t2ugNLdo3Ls78IzGdZYA%3D%22%7D; webhallen=muHHAnQr0m7x0m8SMzRSxw309awlNuyjyLCBsWSI',
-        'Referer': 'https://cdn.webhallen.com/css/app.1308.css',
-        'DNT': '1'
+        'referer': 'https://www.webhallen.com/se/member/'+str(WEBHALLEN_USER_ID)+'/supply-drop',
+        'accept-language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7'
     }
+
+    data = '{"crateType":"activity"}'
+
+    print('Sending request to grab activity supply drop...')
     response = session.post(
-        url=URL
-    )
+        url=URL,
+        headers=headers,
+        data=data)
+
+    if response.status_code == 403:
+        print('Status code 403! No activity supply drop to grab')
+        return
+    print(response)
+
+# EXPERIMENTAL, needs configuration!
+# Sends request to collect level up supply drop
+# Params: Session after login success
+# Params: Webhallen User ID
+def levelup_supply_drop_request(session, WEBHALLEN_USER_ID):
+    URL = 'https://www.webhallen.com/api/supply-drop'
+
+    headers = {
+        'authority': 'www.webhallen.com',
+        'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
+        'dnt': '1',
+        'sec-ch-ua-mobile': '?0',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
+        'content-type': 'application/json',
+        'accept': '*/*',
+        'origin': 'https://www.webhallen.com',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-dest': 'empty',
+        'referer': 'https://www.webhallen.com/se/member/'+str(WEBHALLEN_USER_ID)+'/supply-drop',
+        'accept-language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7'
+    }
+
+    data = '{"crateType":"level_up"}'
+
+    print('Sending request to grab level up supply drop...')
+    response = session.post(
+        url=URL,
+        headers=headers,
+        data=data)
+
+    if response.status_code == 403:
+        print('Status code 403! No level up supply drop to grab')
+        return
+    print(response)
 
 # Grabs users webhallen User ID
 # Params: Session after login success
@@ -119,7 +193,7 @@ def grab_user_id(session):
     WEBHALLEN_USER_ID = os.getenv('WEBHALLEN_USER_ID')
     VERBOSE = os.getenv('VERBOSE')
     if WEBHALLEN_USER_ID == 'example_id':
-        print('Webhallen User ID not set. Grabbing User ID from cookies')
+        print('Webhallen User ID not set in .env file')
     elif len(WEBHALLEN_USER_ID) <= 4 or len(WEBHALLEN_USER_ID) >= 10 or not WEBHALLEN_USER_ID.isdigit():
         print('Wrongly set User ID. Grabbing User ID from cookies')
     else:
@@ -139,31 +213,62 @@ def grab_user_id(session):
 
 # Prints all supply drop status
 # Params: Response from supply drop request
-def print_supply_drop_status(response_supply_text):
+def supply_drop_status(response_supply_text):
     response_json = json.loads(response_supply_text)
     days, hours, minutes, seconds = get_drop_time(response_json['nextDropTime'])
+
+    weekly_avaliable, activity_avaliable, levelup_avaliable = 0, 0, 0
+    
+    weekly_avaliable = int(response_json['crateTypes'][0]['openableCount'])
+    activity_avaliable = int(response_json['crateTypes'][1]['openableCount'])
+    levelup_avaliable = int(response_json['crateTypes'][2]['openableCount'])
+
     print('------ SUPPLY DROP STATUS ------')
-    print('Supply drop avaliable:', 'True' if response_json['crateTypes'][0]['openableCount'] > 0 else 'False')
+    print('Weekly drop avaliable:', weekly_avaliable)
     if days + hours + minutes + seconds > 1:
         print(
-        'Supply drop time left:',
+        'Weekly drop time left:',
         (str(days) + " days") if days > 0 else '',
         (str(hours) + " hours") if hours > 0 else '',
         (str(minutes) + " minutes") if minutes > 0 else '',
         (str(seconds) + " seconds") if seconds > 0 else '')
 
-    print('Activity drop avaliable:', 'True' if response_json['crateTypes'][1]['openableCount'] > 0 else 'False')
+    print('Activity drop avaliable:', activity_avaliable)
     print('Activity drop in: ' + str(response_json['crateTypes'][1]['nextResupplyIn']) + " drops")
 
-    print('Level up drop avaliable:', 'True' if response_json['crateTypes'][2]['openableCount'] > 0 else 'False')
+    print('Level up drop avaliable:', levelup_avaliable)
     print('Level up drop progress: ' + str(response_json['crateTypes'][2]['progress'])[2:4] + "%")
     print('--------------------------------')
+
+    return weekly_avaliable, activity_avaliable, levelup_avaliable
 
 WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD = load_variables()
 session = requests.Session()
 response_login = login_request(session)
 WEBHALLEN_USER_ID = grab_user_id(session)
 response_supply = supply_drop_request(session)
-print_supply_drop_status(response_supply.text)
+weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(response_supply.text)
+
+DEBUG = os.getenv('DEBUG')
+if DEBUG == 'True':
+    weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
+    activity_supply_drop_request(session, WEBHALLEN_USER_ID)
+    levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
+else:
+    if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
+        print('Supply drop avaliable.')
+    
+        for _ in range(weekly_avaliable):
+            weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
+    
+        for _ in range(activity_avaliable):
+            activity_supply_drop_request(session, WEBHALLEN_USER_ID)
+    
+        for _ in range(levelup_avaliable):
+            levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
+    else:
+        print('No supply drop avaliable.')
 
 
+print('AdiliusWSDG exiting!')
+sys.exit(1)
