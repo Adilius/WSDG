@@ -37,7 +37,7 @@ DEBUG="False"                             # If ignore certain restrictions and r
 CONTINUOUS="False"                        # If true, continuously runs script and grabs supply every midnight
 ``` 
 User ID can be found when logged into Webhallen, example:
-`https://www.webhallen.com/se/member/123456/orders`
+`https://www.webhallen.com/se/member/`**`123456`**`/orders`
 Otherwise script grabs it from cookies automatically :)
 
 8. Remove old one enviroment variable file: (OPTIONAL)
