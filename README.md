@@ -34,6 +34,7 @@ WEBHALLEN_PASSWORD="example_password"     # Set your login password
 WEBHALLEN_USER_ID="example_id"            # Set your User ID (optional)
 VERBOSE="False"                           # If sensitive data is to be shown in terminal
 DEBUG="False"                             # If ignore certain restrictions and run anyways
+CONTINUOUS="False"                        # If true, continuously runs script and grabs supply every midnight
 ``` 
 User ID can be found when logged into Webhallen, example:
 `https://www.webhallen.com/se/member/123456/orders`

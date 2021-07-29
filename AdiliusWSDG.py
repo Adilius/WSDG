@@ -4,9 +4,10 @@ import requests
 import json
 import sys
 import time
+import schedule
 import urllib.parse
-
-print('AdiliusWSDG starting.')
+from datetime import datetime
+from rich.console import Console
 
 # Params: Weekly Supply Drop epoch time
 # Returns: days, hours, minutes, seconds until next drop
@@ -22,7 +23,6 @@ def get_drop_time(airplane_time: float):
 # Loads username and password from .env
 def load_variables():
     print('Retriving variables from .env file')
-    load_dotenv()
     WEBHALLEN_USERNAME = os.getenv('WEBHALLEN_USERNAME')
     WEBHALLEN_PASSWORD = os.getenv('WEBHALLEN_PASSWORD')
     VERBOSE = os.getenv('VERBOSE')
@@ -33,11 +33,12 @@ def load_variables():
         print('Example username and password detected!')
         print('You need to change your .env file to continue...')
         sys.exit()
+    print("\n")
     return WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD
 
 # Sends request to login to webhallen
 # Params: session
-def login_request(session):
+def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
     LOGIN_URL = "https://www.webhallen.com/api/login"
     HEADERS = {
         'Content-Type': 'application/json'
@@ -85,7 +86,7 @@ def supply_drop_request(session):
 # Sends request to collect weekly supply drop
 # Params: Session after login success
 # Params: Webhallen User ID
-def weekly_supply_drop_request(session, WEBHALLEN_USER_ID):
+def weekly_supply_drop_request(session, WEBHALLEN_USER_ID: str):
     URL = 'https://www.webhallen.com/api/supply-drop'
 
     headers = {
@@ -119,7 +120,7 @@ def weekly_supply_drop_request(session, WEBHALLEN_USER_ID):
 # Sends request to collect activity supply drop
 # Params: Session after login success
 # Params: Webhallen User ID
-def activity_supply_drop_request(session, WEBHALLEN_USER_ID):
+def activity_supply_drop_request(session, WEBHALLEN_USER_ID: str):
     URL = 'https://www.webhallen.com/api/supply-drop'
 
     headers = {
@@ -155,7 +156,7 @@ def activity_supply_drop_request(session, WEBHALLEN_USER_ID):
 # Sends request to collect level up supply drop
 # Params: Session after login success
 # Params: Webhallen User ID
-def levelup_supply_drop_request(session, WEBHALLEN_USER_ID):
+def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
     URL = 'https://www.webhallen.com/api/supply-drop'
 
     headers = {
@@ -224,6 +225,7 @@ def supply_drop_status(response_supply_text):
     levelup_avaliable = int(response_json['crateTypes'][2]['openableCount'])
 
     print('------ SUPPLY DROP STATUS ------')
+    print(datetime.now().strftime('Time: %Y-%m-%d %H:%M:%S'))
     print('Weekly drop avaliable:', weekly_avaliable)
     if days + hours + minutes + seconds > 1:
         print(
@@ -242,33 +244,52 @@ def supply_drop_status(response_supply_text):
 
     return weekly_avaliable, activity_avaliable, levelup_avaliable
 
-WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD = load_variables()
-session = requests.Session()
-response_login = login_request(session)
-WEBHALLEN_USER_ID = grab_user_id(session)
-response_supply = supply_drop_request(session)
-weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(response_supply.text)
 
-DEBUG = os.getenv('DEBUG')
-if DEBUG == 'True':
-    weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
-    activity_supply_drop_request(session, WEBHALLEN_USER_ID)
-    levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
-else:
-    if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
-        print('Supply drop avaliable.')
-    
-        for _ in range(weekly_avaliable):
-            weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
-    
-        for _ in range(activity_avaliable):
-            activity_supply_drop_request(session, WEBHALLEN_USER_ID)
-    
-        for _ in range(levelup_avaliable):
-            levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
+def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
+    session = requests.Session()
+    response_login = login_request(session, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+    WEBHALLEN_USER_ID = grab_user_id(session)
+    response_supply = supply_drop_request(session)
+    weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(response_supply.text)
+    DEBUG = os.getenv('DEBUG')
+    if DEBUG == 'True':
+        weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
+        activity_supply_drop_request(session, WEBHALLEN_USER_ID)
+        levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
     else:
-        print('No supply drop avaliable.')
+        if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
+            print('Supply drop avaliable.')
+        
+            for _ in range(weekly_avaliable):
+                weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
+        
+            for _ in range(activity_avaliable):
+                activity_supply_drop_request(session, WEBHALLEN_USER_ID)
+        
+            for _ in range(levelup_avaliable):
+                levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
+        else:
+            print('No supply drop avaliable.')
+    print('\n\n\n')
 
 
-print('AdiliusWSDG exiting!')
-sys.exit(1)
+if __name__ == '__main__':
+    print('AdiliusWSDG starting. \n')
+
+    load_dotenv()
+    console = Console()
+    WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD = load_variables()
+    CONTINUOUS = os.getenv('CONTINUOUS')
+
+    if CONTINUOUS == 'True':
+        main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+        schedule.every().day.at('00:10').do(main, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+        with console.status(status='[bold green]Continuously running script....', spinner='material') as status:
+            while 1:
+                schedule.run_pending()
+                time.sleep(1)
+    else:
+        main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+    
+    print('AdiliusWSDG exiting!')
+    sys.exit(1)
