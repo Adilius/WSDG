@@ -2,7 +2,7 @@
 Simple local Python script to get status of supply drops (weekly/daily, activity, level up) and grab them for your account automatically.
 The source code is barely 300 lines of code, read through it, understand it, and if you want, improve it and make a pull request.
 
-Written in Python 3.9.6
+![AdiliusWSDG](https://user-images.githubusercontent.com/43440295/127823499-2a855c8f-ba7d-4f6b-b3aa-0a05f862e04a.gif)
 
 ## Quick start
 1. Clone repository:
