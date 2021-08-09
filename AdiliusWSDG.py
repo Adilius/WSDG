@@ -32,8 +32,8 @@ def load_variables():
     if WEBHALLEN_USERNAME == 'example_email' or WEBHALLEN_PASSWORD == 'example_password':
         print('Example username and password detected!')
         print('You need to change your .env file to continue...')
-        sys.exit()
-    print("\n")
+        sys.exit(1)
+    print()
     return WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD
 
 # Sends request to login to webhallen
@@ -62,9 +62,9 @@ def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         print('Status code:', response.status_code)
         print('Login failed. Exiting...')
         sys.exit()
-    else:
-        print('Login success!')
-        return response
+
+    print('Login success! \n')
+    return response
 
 # Sends status request to webhallen supply drop API
 # Params: Session after login success
@@ -79,8 +79,8 @@ def supply_drop_request(session):
         print('Supply drop page failed. Exiting...')
         print('Status code:', response.status_code)
         sys.exit()
-    else:
-        print('Supply drop status success!')
+    
+    print('Supply drop status success! \n')
     return response
 
 # Sends request to collect weekly supply drop
@@ -191,7 +191,7 @@ def grab_user_id(session):
     if WEBHALLEN_USER_ID == 'example_id':
         print('Webhallen User ID not set in .env file')
     elif len(WEBHALLEN_USER_ID) <= 4 or len(WEBHALLEN_USER_ID) >= 10 or not WEBHALLEN_USER_ID.isdigit():
-        print('Wrongly set User ID. Grabbing User ID from cookies')
+        print('Wrongly set User ID in env.')
     else:
         print('User ID retrived from .env file:', WEBHALLEN_USER_ID)
         return WEBHALLEN_USER_ID
@@ -205,6 +205,8 @@ def grab_user_id(session):
         print('Failure! Exiting program')
         sys.exit(1)
 
+    os.environ['WEBHALLEN_USER_ID'] = str(WEBHALLEN_USER_ID)
+    print()
     return WEBHALLEN_USER_ID
 
 # Prints all supply drop status
@@ -265,7 +267,8 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
                 levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
         else:
             print('No supply drop avaliable.')
-    print('\n\n')
+    print('--------------------------------')
+    print('\n')
 
 if __name__ == '__main__':
     print('AdiliusWSDG starting. \n')
@@ -277,12 +280,12 @@ if __name__ == '__main__':
 
     if CONTINUOUS == 'True':
         main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
-        schedule.every().day.at('00:10').do(main, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+        schedule.every().day.at('17:54').do(main, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
         with console.status(status='[bold green]Continuously running script....', spinner='material') as status:
             while 1:
                 schedule.run_pending()
                 time.sleep(1)
-                
+
     main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
     
     print('AdiliusWSDG exiting!')
