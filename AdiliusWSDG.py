@@ -100,9 +100,17 @@ def weekly_supply_drop_request(session, WEBHALLEN_USER_ID: str):
     )
 
     if response.status_code == 403:
-        print('Status code 403! No weekly supply drop to grab')
+        print('No weekly supply drop to grab')
         return
-    print(response)
+    if response.status_code != 200:
+        print('Unknown error getting weekly supply drop')
+        return
+
+    response_json = json.loads(response.text)
+    for drop in response_json['drops']:
+        name = drop['name']
+        description = drop['description']
+        print(f'Grabbed supply drop {name} and got {description}')
 
 # Sends request to collect activity supply drop
 # Params: Session after login success
@@ -257,8 +265,7 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
                 levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
         else:
             print('No supply drop avaliable.')
-    print('\n\n\n')
-
+    print('\n\n')
 
 if __name__ == '__main__':
     print('AdiliusWSDG starting. \n')
@@ -275,8 +282,8 @@ if __name__ == '__main__':
             while 1:
                 schedule.run_pending()
                 time.sleep(1)
-    else:
-        main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+                
+    main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
     
     print('AdiliusWSDG exiting!')
     sys.exit(1)
