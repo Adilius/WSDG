@@ -41,7 +41,7 @@ class envhandler():
         if self.checkFilePresence() == True:
             load_dotenv(dotenv_path=self.path_to_root)
             enviroment_variable_list = []
-            with open
+            #with open
 
 # Loads username and password from .env
 def load_variables():
