@@ -1,5 +1,3 @@
-import os
-from dotenv import load_dotenv
 import requests
 import json
 import sys
@@ -191,7 +189,6 @@ def grab_user_id(session):
         print('Failure! Exiting program')
         sys.exit(1)
 
-    os.environ['WEBHALLEN_USER_ID'] = str(WEBHALLEN_USER_ID)
     print()
     return WEBHALLEN_USER_ID
 
