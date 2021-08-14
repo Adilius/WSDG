@@ -22,6 +22,8 @@ def get_drop_time(airplane_time: float):
 # Sends request to login to webhallen
 # Params: session
 def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
+    VERBOSE = envHandler.getVariable('VERBOSE')
+
     LOGIN_URL = "https://www.webhallen.com/api/login"
     HEADERS = {
         'Content-Type': 'application/json'
@@ -31,6 +33,9 @@ def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         'password':WEBHALLEN_PASSWORD
     })
     print('Sending login request...')
+    print('Webhallen username:', WEBHALLEN_USERNAME if VERBOSE == 'True' else '*******')
+    print('Webhallen password:', WEBHALLEN_PASSWORD if VERBOSE == 'True' else '*******')
+
     response = session.post(
         url=LOGIN_URL,
         headers=HEADERS,
@@ -170,16 +175,7 @@ def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
 # Params: Session after login success
 def grab_user_id(session):
 
-
-    WEBHALLEN_USER_ID = envHandler.getVariable('WEBHALLEN_USER_ID')
     VERBOSE = envHandler.getVariable('VERBOSE')
-
-    if len(WEBHALLEN_USER_ID) <= 4 or len(WEBHALLEN_USER_ID) >= 10 or not WEBHALLEN_USER_ID.isdigit():
-        print('Wrongly set User ID in env.')
-    else:
-        print('User ID retrived from .env file:', WEBHALLEN_USER_ID)
-        return WEBHALLEN_USER_ID
-
     print('Grabbing Webhallen User ID from cookies')
     try:
         webhallen_auth_cookie = session.cookies['webhallen_auth']
