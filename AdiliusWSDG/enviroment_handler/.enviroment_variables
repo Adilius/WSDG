@@ -1,0 +1,5 @@
+WEBHALLEN_USERNAME,Set your login email
+WEBHALLEN_PASSWORD,Set your login password
+WEBHALLEN_USER_ID,Set your User ID (optional)
+VERBOSE,Print sensitive data in the terminal (True/False)
+CONTINUOUS,Continuously run script and grab supply every midnight (True/False)

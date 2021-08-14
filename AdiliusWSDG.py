@@ -8,6 +8,7 @@ import schedule
 import urllib.parse
 from datetime import datetime
 from rich.console import Console
+from AdiliusWSDG.enviroment_handler import enviroment_handler
 
 # Params: Weekly Supply Drop epoch time
 # Returns: days, hours, minutes, seconds until next drop
@@ -19,22 +20,6 @@ def get_drop_time(airplane_time: float):
     minutes = (time_difference - days*86400 - hours*3600) // 60
     seconds = (time_difference - days*86400 - hours*3600 - minutes*60)
     return days, hours, minutes, seconds
-
-# Loads username and password from .env
-def load_variables():
-    print('Retriving variables from .env file')
-    WEBHALLEN_USERNAME = os.getenv('WEBHALLEN_USERNAME')
-    WEBHALLEN_PASSWORD = os.getenv('WEBHALLEN_PASSWORD')
-    VERBOSE = os.getenv('VERBOSE')
-    print('Username:', WEBHALLEN_USERNAME if VERBOSE == 'True' else '*******')
-    print('Password:', WEBHALLEN_PASSWORD if VERBOSE == 'True' else '*******')
-
-    if WEBHALLEN_USERNAME == 'example_email' or WEBHALLEN_PASSWORD == 'example_password':
-        print('Example username and password detected!')
-        print('You need to change your .env file to continue...')
-        sys.exit(1)
-    print()
-    return WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD
 
 # Sends request to login to webhallen
 # Params: session
@@ -186,11 +171,12 @@ def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
 # Grabs users webhallen User ID
 # Params: Session after login success
 def grab_user_id(session):
-    WEBHALLEN_USER_ID = os.getenv('WEBHALLEN_USER_ID')
-    VERBOSE = os.getenv('VERBOSE')
-    if WEBHALLEN_USER_ID == 'example_id':
-        print('Webhallen User ID not set in .env file')
-    elif len(WEBHALLEN_USER_ID) <= 4 or len(WEBHALLEN_USER_ID) >= 10 or not WEBHALLEN_USER_ID.isdigit():
+
+
+    WEBHALLEN_USER_ID = envHandler.getVariable('WEBHALLEN_USER_ID')
+    VERBOSE = envHandler.getVariable('VERBOSE')
+
+    if len(WEBHALLEN_USER_ID) <= 4 or len(WEBHALLEN_USER_ID) >= 10 or not WEBHALLEN_USER_ID.isdigit():
         print('Wrongly set User ID in env.')
     else:
         print('User ID retrived from .env file:', WEBHALLEN_USER_ID)
@@ -248,39 +234,44 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
     WEBHALLEN_USER_ID = grab_user_id(session)
     response_supply = supply_drop_request(session)
     weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(response_supply.text)
-    DEBUG = os.getenv('DEBUG')
-    if DEBUG == 'True':
-        weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
-        activity_supply_drop_request(session, WEBHALLEN_USER_ID)
-        levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
+    if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
+        print('Supply drop avaliable.')
+        
+        for _ in range(weekly_avaliable):
+            weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
+        
+        for _ in range(activity_avaliable):
+            activity_supply_drop_request(session, WEBHALLEN_USER_ID)
+        
+        for _ in range(levelup_avaliable):
+            levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
     else:
-        if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
-            print('Supply drop avaliable.')
-        
-            for _ in range(weekly_avaliable):
-                weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
-        
-            for _ in range(activity_avaliable):
-                activity_supply_drop_request(session, WEBHALLEN_USER_ID)
-        
-            for _ in range(levelup_avaliable):
-                levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
-        else:
-            print('No supply drop avaliable.')
+        print('No supply drop avaliable.')
+    
     print('--------------------------------')
     print('\n')
 
 if __name__ == '__main__':
     print('AdiliusWSDG starting. \n')
 
-    load_dotenv()
-    console = Console()
-    WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD = load_variables()
-    CONTINUOUS = os.getenv('CONTINUOUS')
+    
 
+    envHandler = enviroment_handler.envhandler()
+    WEBHALLEN_USERNAME = envHandler.getVariable('WEBHALLEN_USERNAME')
+    WEBHALLEN_PASSWORD = envHandler.getVariable('WEBHALLEN_PASSWORD')
+    CONTINUOUS = envHandler.getVariable('CONTINUOUS')
+
+    # Continiously running the program
     if CONTINUOUS == 'True':
+
+        # Run once first
         main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+
+        # Schedule running
         schedule.every().day.at('17:54').do(main, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+
+        # Continious running console
+        console = Console()
         with console.status(status='[bold green]Continuously running script....', spinner='material') as status:
             while 1:
                 schedule.run_pending()

@@ -1,6 +1,0 @@
-WEBHALLEN_USERNAME, Set your login email
-WEBHALLEN_PASSWORD, Set your login password
-WEBHALLEN_USER_ID, Set your User ID (optional)
-VERBOSE, Print sensitive data in the terminal
-DEBUG, Run program fully regardless of responses from Webhallen
-CONTINUOUS, Continuously run script and grab supply every midnight
