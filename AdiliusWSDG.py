@@ -247,8 +247,6 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
 if __name__ == '__main__':
     print('AdiliusWSDG starting. \n')
 
-    
-
     envHandler = enviroment_handler.envhandler()
     WEBHALLEN_USERNAME = envHandler.getVariable('WEBHALLEN_USERNAME')
     WEBHALLEN_PASSWORD = envHandler.getVariable('WEBHALLEN_PASSWORD')

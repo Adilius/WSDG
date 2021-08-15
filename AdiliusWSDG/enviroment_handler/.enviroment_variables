@@ -2,3 +2,4 @@ WEBHALLEN_USERNAME,Set your login email
 WEBHALLEN_PASSWORD,Set your login password
 VERBOSE,Print sensitive data in the terminal (True/False)
 CONTINUOUS,Continuously run script and grab supply every midnight (True/False)
+SAVE_ENV,Save enviroment variables for next future executions (True/False)
