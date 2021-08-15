@@ -32,13 +32,15 @@ python .\AdiliusWSDG.py
 
 ## Variables
 
-At first prompt, or if enviroment file is missing. You will be prompted for variables
-```
-WEBHALLEN_USERNAME="example@email.com"        # Set your login email
-WEBHALLEN_PASSWORD="example_password"         # Set your login password
-VERBOSE="False"                               # Prints sensitive data in the terminal
-CONTINUOUS="False"                            # Continuously run script and grab supply every midnight
-``` 
+At first prompt, or if enviroment file is missing. You will be prompted for variables to run the script.
+| Variable name | Value | Description |
+| :---         |     :---:      |         :---  |
+|WEBHALLEN_USERNAME| example_email     | Set your login email    |
+|WEBHALLEN_PASSWORD| example_password     | Set your login password    |
+| VERBOSE   | True/False     | Prints sensitive data in the terminal    |
+| CONTINUOUS   | True/False     | Continuously run script and grab supply every midnight    |
+| SAVE_ENV   | True/False    | Save enviroment variables for next future executions    |
+
 
 ## Roadmap
 
