@@ -59,7 +59,5 @@ If you want to contribute, make a pull request.
 
 Acknowledgement to [mirague](https://github.com/mirague) with their [webhallen-supply-drop](https://github.com/mirague/webhallen-supply-drop) repository which sparked the idea for this python project.
 
-https://github.com/mirague/webhallen-supply-drop
-
 ## License
 [MIT](https://github.com/Adilius/AdiliusWSDG/blob/master/LICENSE)
