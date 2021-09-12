@@ -1,6 +1,7 @@
 import os
 import uuid
 import json
+import getpass
 
 # Handles enviroment variables
 class envhandler():
@@ -127,7 +128,10 @@ class envhandler():
 
         # Ask user for variables
         for i in range(len(names)):
-            variable = input(descriptions[i] + ": ")
+            if names[i] == 'WEBHALLEN_PASSWORD':
+                variable = getpass.getpass(prompt=(descriptions[i]+": "))
+            else:
+                variable = input(descriptions[i] + ": ")
             self.variables[names[i]] = variable
 
     # Returns variable value given variable name
