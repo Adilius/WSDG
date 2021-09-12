@@ -33,8 +33,8 @@ def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         'password':WEBHALLEN_PASSWORD
     })
     print('Sending login request...')
-    print('Webhallen username:', WEBHALLEN_USERNAME if VERBOSE == 'True' else '*******')
-    print('Webhallen password:', WEBHALLEN_PASSWORD if VERBOSE == 'True' else '*******')
+    print('Webhallen username:', WEBHALLEN_USERNAME if VERBOSE == 'y' else '*******')
+    print('Webhallen password:', WEBHALLEN_PASSWORD if VERBOSE == 'y' else '*******')
 
     response = session.post(
         url=LOGIN_URL,
@@ -180,7 +180,7 @@ def grab_user_id(session):
     try:
         webhallen_auth_cookie = session.cookies['webhallen_auth']
         WEBHALLEN_USER_ID = json.loads(urllib.parse.unquote(webhallen_auth_cookie))
-        print('Success! Webhallen User ID:', WEBHALLEN_USER_ID['user_id'] if VERBOSE == 'True' else '*******')
+        print('Success! Webhallen User ID:', WEBHALLEN_USER_ID['user_id'] if VERBOSE == 'y' else '*******')
     except:
         print('Failure! Exiting program')
         sys.exit(1)
@@ -247,13 +247,14 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
 if __name__ == '__main__':
     print('AdiliusWSDG starting. \n')
 
+    # Get enviroment variables
     envHandler = enviroment_handler.envhandler()
     WEBHALLEN_USERNAME = envHandler.getVariable('WEBHALLEN_USERNAME')
     WEBHALLEN_PASSWORD = envHandler.getVariable('WEBHALLEN_PASSWORD')
     CONTINUOUS = envHandler.getVariable('CONTINUOUS')
 
     # Continiously running the program
-    if CONTINUOUS == 'True':
+    if CONTINUOUS == 'y':
 
         # Run once first
         main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)

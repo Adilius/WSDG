@@ -37,9 +37,9 @@ At first prompt, or if enviroment file is missing. You will be prompted for vari
 | :---         |     :---:      |         :---  |
 |WEBHALLEN_USERNAME| example_email     | Set your login email    |
 |WEBHALLEN_PASSWORD| example_password     | Set your login password    |
-| VERBOSE   | True/False     | Prints sensitive data in the terminal    |
-| CONTINUOUS   | True/False     | Continuously run script and grab supply every midnight    |
-| SAVE_ENV   | True/False    | Save enviroment variables for next future executions    |
+| VERBOSE   | y/n     | Prints sensitive data in the terminal    |
+| CONTINUOUS   | y/n     | Continuously run script and grab supply every midnight    |
+| SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
 
 
 ## Roadmap

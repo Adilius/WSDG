@@ -21,11 +21,11 @@ class envhandler():
             except:
                 print('Error reading enviroment file')
                 self.promptNewEnv()
-                if self.getVariable('SAVE_ENV') == 'True':
+                if self.getVariable('SAVE_ENV') == 'y':
                     self.writeEnvContents()
         else:
             self.promptNewEnv()
-            if self.getVariable('SAVE_ENV') == 'True':
+            if self.getVariable('SAVE_ENV') == 'y':
                 self.writeEnvContents()
 
     # Checks if .env file exists
