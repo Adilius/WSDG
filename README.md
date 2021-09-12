@@ -10,10 +10,6 @@ Simple local Python script to get status of supply drops (weekly/daily, activity
 ```bash
 git clone https://github.com/Adilius/AdiliusWSDG.git
 ```
-***OR***
-```bash
-git clone git@github.com:Adilius/AdiliusWSDG.git
-```
 
 2. Change directory to repository:
 ```bash
@@ -40,16 +36,6 @@ At first prompt, or if enviroment file is missing. You will be prompted for vari
 | VERBOSE   | y/n     | Prints sensitive data in the terminal    |
 | CONTINUOUS   | y/n     | Continuously run script and grab supply every midnight    |
 | SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
-
-
-## Roadmap
-
-This project is still in early development, things to improve:
-- [ ] Cron setup
-- [ ] Logging
-- [ ] Improved error handling
-- [ ] Continious execution with pseudo-random timed actions
-- [ ] Header setup/clean-up
 
 ## Contributing
 
