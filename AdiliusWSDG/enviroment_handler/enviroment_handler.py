@@ -7,6 +7,7 @@ import getpass
 class envhandler():
 
     def __init__(self):
+        self.root_path = os.getcwd()
         self.path_to_data = "AdiliusWSDG/data/"
         self.env = ".env"
         self.path_to_list = "AdiliusWSDG/enviroment_handler/"
@@ -14,6 +15,7 @@ class envhandler():
         self.variables = {}
         self.key = str(uuid.getnode())  # Get hardware adress as 48-bit positive integer
         self.init()
+
 
     def init(self):
         if self.checkEnvFilePresence():
@@ -32,7 +34,7 @@ class envhandler():
     # Checks if .env file exists
     def checkEnvFilePresence(self):
 
-        if os.path.isfile(self.path_to_data + self.env):
+        if os.path.isfile(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env)):
             return True
         return False
 
@@ -46,7 +48,7 @@ class envhandler():
         enviromentVariablesDescription = []
 
         # Open file and read contents
-        with open(self.path_to_list + self.enviromentVariablesList) as env_file:
+        with open(os.path.join(self.root_path, 'AdiliusWSDG/enviroment_handler/', self.enviromentVariablesList)) as env_file:
             for line in env_file.read().splitlines():
                 name, description = line.split(',')
                 enviromentVariablesNames.append(name)
@@ -84,7 +86,7 @@ class envhandler():
         if self.checkEnvFilePresence() == True:
 
             # Open .env file
-            env_file = open(self.path_to_data + self.env, 'r', encoding='utf-8')
+            env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'r', encoding='utf-8')
 
             # Read ciphertext contents
             ciphertext = env_file.read()
@@ -105,7 +107,7 @@ class envhandler():
         json_env = json.dumps(self.variables)
 
         # Open .env file for writing
-        env_file = open(self.path_to_data + self.env, 'w', encoding='utf-8')  # open file for writing
+        env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'w', encoding='utf-8')  # open file for writing
 
         # Encode to ciphertext
         ciphertext = self.encode(json_env)
