@@ -106,8 +106,9 @@ class envhandler():
         # Enviroment variables to json string
         json_env = json.dumps(self.variables)
 
-        # Open .env file for writing
-        env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'w', encoding='utf-8')  # open file for writing
+        # Create directory and file   
+        os.makedirs(os.path.join(self.root_path, 'AdiliusWSDG/data/'))  # Create directory
+        env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'w', encoding='utf-8')  # Create/open file
 
         # Encode to ciphertext
         ciphertext = self.encode(json_env)
