@@ -7,6 +7,7 @@ import urllib.parse
 from datetime import datetime
 from rich.console import Console
 from AdiliusWSDG.enviroment_handler import enviroment_handler
+from AdiliusWSDG.logging_handler import logging_handler
 
 # Params: Weekly Supply Drop epoch time
 # Returns: days, hours, minutes, seconds until next drop
@@ -32,9 +33,9 @@ def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         'username':WEBHALLEN_USERNAME,
         'password':WEBHALLEN_PASSWORD
     })
-    print('Sending login request...')
-    print('Webhallen username:', WEBHALLEN_USERNAME if VERBOSE == 'y' else '*******')
-    print('Webhallen password:', WEBHALLEN_PASSWORD if VERBOSE == 'y' else '*******')
+    loghandler.print_log('Sending login request...')
+    loghandler.print_log('Webhallen username: ' + WEBHALLEN_USERNAME if VERBOSE == 'y' else 'Webhallen username: *******')
+    loghandler.print_log('Webhallen password: ' + WEBHALLEN_PASSWORD if VERBOSE == 'y' else 'Webhallen password: *******')
 
     response = session.post(
         url=LOGIN_URL,
@@ -42,33 +43,33 @@ def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         data=BODY
     )
     if response.status_code == 403:
-        print('Forbidden access')
-        print('Possibly wrongly set username and password')
-        print('Exiting...')
+        loghandler.print_log('Forbidden access: Status code 403')
+        loghandler.print_log('Possibly wrongly set username and password')
+        loghandler.print_log('Exiting...')
         sys.exit()
     elif response.status_code != 200:
-        print('Status code:', response.status_code)
-        print('Login failed. Exiting...')
+        loghandler.print_log('Status code:', response.status_code)
+        loghandler.print_log('Login failed. Exiting...')
         sys.exit()
 
-    print('Login success! \n')
+    loghandler.print_log('Login success!')
     return response
 
 # Sends status request to webhallen supply drop API
 # Params: Session after login success
 def supply_drop_request(session):
     SUPPLY_DROP_URL = 'https://www.webhallen.com/api/supply-drop'
-    print('Sending supply drop status request...')
+    loghandler.print_log('Sending supply drop status request...')
     response = session.get(
         url = SUPPLY_DROP_URL
     )
 
     if response.status_code != 200:
-        print('Supply drop page failed. Exiting...')
-        print('Status code:', response.status_code)
+        loghandler.print_log('Status code:', response.status_code)
+        loghandler.print_log('Supply drop page failed. Exiting...')
         sys.exit()
     
-    print('Supply drop status success! \n')
+    loghandler.print_log('Supply drop status success!')
     return response
 
 # Sends request to collect weekly supply drop
@@ -91,14 +92,14 @@ def weekly_supply_drop_request(session, WEBHALLEN_USER_ID: str):
         print('No weekly supply drop to grab')
         return
     if response.status_code != 200:
-        print('Unknown error getting weekly supply drop')
+        loghandler.print_log(f'Error grabbing weekly supply drop: {response.status_code}')
         return
 
     response_json = json.loads(response.text)
     for drop in response_json['drops']:
         name = drop['name']
         description = drop['description']
-        print(f'Grabbed supply drop {name} and got {description}')
+        loghandler.print_log(f'Grabbed supply drop {name} and got {description}')
 
 # Sends request to collect activity supply drop
 # Params: Session after login success
@@ -176,16 +177,16 @@ def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
 def grab_user_id(session):
 
     VERBOSE = envHandler.getVariable('VERBOSE')
-    print('Grabbing Webhallen User ID from cookies')
+    loghandler.print_log('Grabbing Webhallen User ID from cookies')
     try:
         webhallen_auth_cookie = session.cookies['webhallen_auth']
         WEBHALLEN_USER_ID = json.loads(urllib.parse.unquote(webhallen_auth_cookie))
-        print('Success! Webhallen User ID:', WEBHALLEN_USER_ID['user_id'] if VERBOSE == 'y' else '*******')
     except:
-        print('Failure! Exiting program')
+        loghandler.print_log('Failure! Exiting program')
         sys.exit(1)
+    else:
+        loghandler.print_log('Webhallen User ID: ' + WEBHALLEN_USER_ID['user_id'] if VERBOSE == 'y' else 'Webhallen User ID: *******')
 
-    print()
     return WEBHALLEN_USER_ID
 
 # Prints all supply drop status
@@ -239,13 +240,13 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         for _ in range(levelup_avaliable):
             levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
     else:
-        print('No supply drop avaliable.')
-    
-    print('--------------------------------')
-    print('\n')
+        loghandler.print_log('No supply drop avaliable.')
 
 if __name__ == '__main__':
-    print('AdiliusWSDG starting. \n')
+
+    # Start logging handler
+    loghandler = logging_handler.loghandler()
+    loghandler.print_log('AdiliusWSDG starting.')
 
     # Get enviroment variables
     envHandler = enviroment_handler.envhandler()
@@ -271,5 +272,5 @@ if __name__ == '__main__':
 
     main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
     
-    print('AdiliusWSDG exiting!')
+    loghandler.print_log('AdiliusWSDG exiting.')
     sys.exit(1)

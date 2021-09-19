@@ -2,6 +2,7 @@ import os
 import uuid
 import json
 import getpass
+from pathlib import Path
 
 # Handles enviroment variables
 class envhandler():
@@ -106,8 +107,11 @@ class envhandler():
         # Enviroment variables to json string
         json_env = json.dumps(self.variables)
 
-        # Create directory and file   
-        os.makedirs(os.path.join(self.root_path, 'AdiliusWSDG/data/'))  # Create directory
+        # Create directory
+        if not Path(os.path.join(self.root_path, 'AdiliusWSDG/data/')):     # Check if it does not exist
+            os.makedirs(os.path.join(self.root_path, 'AdiliusWSDG/data/'))  # Create directory
+
+        # Create file   
         env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'w', encoding='utf-8')  # Create/open file
 
         # Encode to ciphertext
