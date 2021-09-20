@@ -3,7 +3,10 @@
 # AdiliusWSDG - Adilius Webhallen Supply Drop Grabber
 Simple local Python script to get status of supply drops (weekly/daily, activity, level up) and grab them for your account automatically.
 
-![AdiliusWSDG](https://user-images.githubusercontent.com/43440295/127823499-2a855c8f-ba7d-4f6b-b3aa-0a05f862e04a.gif)
+![RUNTIME](https://user-images.githubusercontent.com/43440295/127823499-2a855c8f-ba7d-4f6b-b3aa-0a05f862e04a.gif)
+
+![LOGS](https://user-images.githubusercontent.com/43440295/134048866-0243ae2a-23a8-432a-acc8-a8d3ec1af201.png)
+
 
 ## Quick start
 1. Clone repository:
