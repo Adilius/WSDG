@@ -8,6 +8,7 @@ from datetime import datetime
 from rich.console import Console
 from AdiliusWSDG.enviroment_handler import enviroment_handler
 from AdiliusWSDG.logging_handler import logging_handler
+from AdiliusWSDG.http_handler import http_handler
 
 # Params: Weekly Supply Drop epoch time
 # Returns: days, hours, minutes, seconds until next drop
@@ -88,11 +89,12 @@ def weekly_supply_drop_request(session, WEBHALLEN_USER_ID: str):
         headers=headers
     )
 
-    if response.status_code == 403:
-        print('No weekly supply drop to grab')
-        return
+
+    # Handle bad response
     if response.status_code != 200:
-        loghandler.print_log(f'Error grabbing weekly supply drop: {response.status_code}')
+        error_msg = f'Error grabbing weekly supply drop. Status code: {response.status_code}'
+        print(error_msg)
+        loghandler.print_log(error_msg)
         return
 
     response_json = json.loads(response.text)
@@ -109,18 +111,8 @@ def activity_supply_drop_request(session, WEBHALLEN_USER_ID: str):
 
     headers = {
         'authority': 'www.webhallen.com',
-        'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
-        'dnt': '1',
-        'sec-ch-ua-mobile': '?0',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
-        'content-type': 'application/json',
-        'accept': '*/*',
         'origin': 'https://www.webhallen.com',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-dest': 'empty',
         'referer': 'https://www.webhallen.com/se/member/'+str(WEBHALLEN_USER_ID)+'/supply-drop',
-        'accept-language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7'
     }
 
     data = '{"crateType":"activity"}'
@@ -131,9 +123,13 @@ def activity_supply_drop_request(session, WEBHALLEN_USER_ID: str):
         headers=headers,
         data=data)
 
-    if response.status_code == 403:
-        print('Status code 403! No activity supply drop to grab')
+    # Handle bad response
+    if response.status_code != 200:
+        error_msg = f'Error grabbing activity supply drop. Status code: {response.status_code}'
+        print(error_msg)
+        loghandler.print_log(error_msg)
         return
+
     print(response)
 
 # EXPERIMENTAL, needs configuration!
@@ -144,22 +140,12 @@ def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
     URL = 'https://www.webhallen.com/api/supply-drop'
 
     headers = {
-        'authority': 'www.webhallen.com',
-        'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
-        'dnt': '1',
-        'sec-ch-ua-mobile': '?0',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
-        'content-type': 'application/json',
-        'accept': '*/*',
-        'origin': 'https://www.webhallen.com',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-dest': 'empty',
-        'referer': 'https://www.webhallen.com/se/member/'+str(WEBHALLEN_USER_ID)+'/supply-drop',
-        'accept-language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7'
+    'authority': 'www.webhallen.com',
+    'origin': 'https://www.webhallen.com',
+    'referer': 'https://www.webhallen.com/se/member/'+str(WEBHALLEN_USER_ID)+'/supply-drop',
     }
 
-    data = '{"crateType":"level_up"}'
+    data = '{"crateType":"level-up"}'
 
     print('Sending request to grab level up supply drop...')
     response = session.post(
@@ -167,9 +153,13 @@ def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
         headers=headers,
         data=data)
 
-    if response.status_code == 403:
-        print('Status code 403! No level up supply drop to grab')
+    # Handle bad response
+    if response.status_code != 200:
+        error_msg = f'Error grabbing level up supply drop. Status code: {response.status_code}'
+        print(error_msg)
+        loghandler.print_log(error_msg)
         return
+
     print(response)
 
 # Grabs users webhallen User ID
