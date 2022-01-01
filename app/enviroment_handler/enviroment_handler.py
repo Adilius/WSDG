@@ -9,9 +9,9 @@ class envhandler():
 
     def __init__(self):
         self.root_path = os.getcwd()
-        self.path_to_data = "AdiliusWSDG/data/"
+        self.path_to_data = "app/data/"
         self.env = ".env"
-        self.path_to_list = "AdiliusWSDG/enviroment_handler/"
+        self.path_to_list = "app/enviroment_handler/"
         self.enviromentVariablesList = '.enviroment_variables'
         self.variables = {}
         self.key = str(uuid.getnode())  # Get hardware adress as 48-bit positive integer
@@ -35,7 +35,7 @@ class envhandler():
     # Checks if .env file exists
     def checkEnvFilePresence(self):
 
-        if os.path.isfile(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env)):
+        if os.path.isfile(os.path.join(self.root_path, 'app/data/', self.env)):
             return True
         return False
 
@@ -49,7 +49,7 @@ class envhandler():
         enviromentVariablesDescription = []
 
         # Open file and read contents
-        with open(os.path.join(self.root_path, 'AdiliusWSDG/enviroment_handler/', self.enviromentVariablesList)) as env_file:
+        with open(os.path.join(self.root_path, 'app/enviroment_handler/', self.enviromentVariablesList)) as env_file:
             for line in env_file.read().splitlines():
                 name, description = line.split(',')
                 enviromentVariablesNames.append(name)
@@ -87,7 +87,7 @@ class envhandler():
         if self.checkEnvFilePresence() == True:
 
             # Open .env file
-            env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'r', encoding='utf-8')
+            env_file = open(os.path.join(self.root_path, 'app/data/', self.env), 'r', encoding='utf-8')
 
             # Read ciphertext contents
             ciphertext = env_file.read()
@@ -108,11 +108,11 @@ class envhandler():
         json_env = json.dumps(self.variables)
 
         # Create directory
-        if not Path(os.path.join(self.root_path, 'AdiliusWSDG/data/')):     # Check if it does not exist
-            os.makedirs(os.path.join(self.root_path, 'AdiliusWSDG/data/'))  # Create directory
+        if not Path(os.path.join(self.root_path, 'app/data/')):     # Check if it does not exist
+            os.makedirs(os.path.join(self.root_path, 'app/data/'))  # Create directory
 
         # Create file   
-        env_file = open(os.path.join(self.root_path, 'AdiliusWSDG/data/', self.env), 'w', encoding='utf-8')  # Create/open file
+        env_file = open(os.path.join(self.root_path, 'app/data/', self.env), 'w', encoding='utf-8')  # Create/open file
 
         # Encode to ciphertext
         ciphertext = self.encode(json_env)

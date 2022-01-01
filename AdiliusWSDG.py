@@ -6,9 +6,9 @@ import schedule
 import urllib.parse
 from datetime import datetime
 from rich.console import Console
-from AdiliusWSDG.enviroment_handler import enviroment_handler
-from AdiliusWSDG.logging_handler import logging_handler
-from AdiliusWSDG.http_handler import http_handler
+from app.enviroment_handler import enviroment_handler
+from app.logging_handler import logging_handler
+from app.http_handler import http_handler
 
 # Params: Weekly Supply Drop epoch time
 # Returns: days, hours, minutes, seconds until next drop
@@ -21,40 +21,7 @@ def get_drop_time(airplane_time: float):
     seconds = (time_difference - days*86400 - hours*3600 - minutes*60)
     return days, hours, minutes, seconds
 
-# Sends request to login to webhallen
-# Params: session
-def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
-    VERBOSE = envHandler.getVariable('VERBOSE')
 
-    LOGIN_URL = "https://www.webhallen.com/api/login"
-    HEADERS = {
-        'Content-Type': 'application/json'
-    }
-    BODY = json.dumps({
-        'username':WEBHALLEN_USERNAME,
-        'password':WEBHALLEN_PASSWORD
-    })
-    loghandler.print_log('Sending login request...')
-    loghandler.print_log('Webhallen username: ' + WEBHALLEN_USERNAME if VERBOSE == 'y' else 'Webhallen username: *******')
-    loghandler.print_log('Webhallen password: ' + WEBHALLEN_PASSWORD if VERBOSE == 'y' else 'Webhallen password: *******')
-
-    response = session.post(
-        url=LOGIN_URL,
-        headers=HEADERS,
-        data=BODY
-    )
-    if response.status_code == 403:
-        loghandler.print_log('Forbidden access: Status code 403')
-        loghandler.print_log('Possibly wrongly set username and password')
-        loghandler.print_log('Exiting...')
-        sys.exit()
-    elif response.status_code != 200:
-        loghandler.print_log('Status code:', response.status_code)
-        loghandler.print_log('Login failed. Exiting...')
-        sys.exit()
-
-    loghandler.print_log('Login success!')
-    return response
 
 # Sends status request to webhallen supply drop API
 # Params: Session after login success
@@ -214,7 +181,7 @@ def supply_drop_status(response_supply_text):
 
 def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
     session = requests.Session()
-    response_login = login_request(session, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+    response_login = http_handler.login_request(session, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
     WEBHALLEN_USER_ID = grab_user_id(session)
     response_supply = supply_drop_request(session)
     weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(response_supply.text)
@@ -253,14 +220,14 @@ if __name__ == '__main__':
         # Schedule running
         schedule.every().day.at('17:54').do(main, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
 
-        # Continious running console
-        console = Console()
-        with console.status(status='[bold green]Continuously running script....', spinner='material') as status:
-            while 1:
-                schedule.run_pending()
-                time.sleep(1)
+        print(f'Continuously running script....')
+        while 1:
+            schedule.run_pending()
+            time.sleep(1)
 
-    main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+    # Run one time
+    else:
+        main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
     
-    loghandler.print_log('AdiliusWSDG exiting.')
-    sys.exit(1)
+        loghandler.print_log('AdiliusWSDG exiting.')
+        sys.exit(1)
