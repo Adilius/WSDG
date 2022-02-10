@@ -1,18 +1,24 @@
-import requests
+"""
+Main module to run program
+"""
 import json
 import sys
 import time
-import schedule
 import urllib.parse
 from datetime import datetime
-from rich.console import Console
+import requests
+import schedule
+
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
 from app.http_handler import http_handler
 
-# Params: Weekly Supply Drop epoch time
-# Returns: days, hours, minutes, seconds until next drop
+BASE_API_URL = "https://www.webhallen.com/api/"
+
 def get_drop_time(airplane_time: float):
+    """
+    Returns days, hours, minutes, seconds until next drop using Weekly Supply Drop epoch time
+    """
     current_time = round(time.time())
     time_difference = int(airplane_time - current_time)
     days = time_difference // 86400
@@ -21,21 +27,22 @@ def get_drop_time(airplane_time: float):
     seconds = time_difference - days * 86400 - hours * 3600 - minutes * 60
     return days, hours, minutes, seconds
 
-
-# Sends request to collect weekly supply drop
-# Params: Session after login success
-# Params: Webhallen User ID
-def weekly_supply_drop_request(session, WEBHALLEN_USER_ID: str):
-    URL = "https://www.webhallen.com/api/supply-drop"
+def weekly_supply_drop_request(session, webhallen_user_id: str):
+    """
+    Params: Session after login success
+    Params: Webhallen User ID
+    Sends request to collect weekly supply drop
+    """
+    url = BASE_API_URL + "supply-drop/"
 
     headers = {
         "referer": "https://www.webhallen.com/se/member/"
-        + str(WEBHALLEN_USER_ID)
+        + str(webhallen_user_id)
         + "/supply-drop"
     }
 
     print("Sending request to grab weekly supply drop...")
-    response = session.post(url=URL, headers=headers)
+    response = session.post(url=url, headers=headers)
 
     # Handle bad response
     if response.status_code != 200:
@@ -52,25 +59,26 @@ def weekly_supply_drop_request(session, WEBHALLEN_USER_ID: str):
         description = drop["description"]
         loghandler.print_log(f"Grabbed supply drop {name} and got {description}")
 
-
-# Sends request to collect activity supply drop
-# Params: Session after login success
-# Params: Webhallen User ID
-def activity_supply_drop_request(session, WEBHALLEN_USER_ID: str):
-    URL = "https://www.webhallen.com/api/supply-drop"
+def activity_supply_drop_request(session, webhallen_user_id: str):
+    """
+    Params: Session after login success
+    Params: Webhallen User ID
+    Sends request to collect activity supply drop
+    """
+    url = "https://www.webhallen.com/api/supply-drop"
 
     headers = {
         "authority": "www.webhallen.com",
         "origin": "https://www.webhallen.com",
         "referer": "https://www.webhallen.com/se/member/"
-        + str(WEBHALLEN_USER_ID)
+        + str(webhallen_user_id)
         + "/supply-drop",
     }
 
     data = '{"crateType":"activity"}'
 
     print("Sending request to grab activity supply drop...")
-    response = session.post(url=URL, headers=headers, data=data)
+    response = session.post(url=url, headers=headers, data=data)
 
     # Handle bad response
     if response.status_code != 200:
@@ -83,26 +91,27 @@ def activity_supply_drop_request(session, WEBHALLEN_USER_ID: str):
 
     print(response)
 
-
-# EXPERIMENTAL, needs configuration!
-# Sends request to collect level up supply drop
-# Params: Session after login success
-# Params: Webhallen User ID
-def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
-    URL = "https://www.webhallen.com/api/supply-drop"
+def levelup_supply_drop_request(session, webhallen_user_id: str):
+    """
+    EXPERIMENTAL, needs configuration!
+    Params: Session after login success
+    Params: Webhallen User ID
+    Sends request to collect level up supply drop
+    """
+    url = "https://www.webhallen.com/api/supply-drop"
 
     headers = {
         "authority": "www.webhallen.com",
         "origin": "https://www.webhallen.com",
         "referer": "https://www.webhallen.com/se/member/"
-        + str(WEBHALLEN_USER_ID)
+        + str(webhallen_user_id)
         + "/supply-drop",
     }
 
     data = '{"crateType":"level-up"}'
 
     print("Sending request to grab level up supply drop...")
-    response = session.post(url=URL, headers=headers, data=data)
+    response = session.post(url=url, headers=headers, data=data)
 
     # Handle bad response
     if response.status_code != 200:
@@ -115,32 +124,34 @@ def levelup_supply_drop_request(session, WEBHALLEN_USER_ID: str):
 
     print(response)
 
-
-# Grabs users webhallen User ID
-# Params: Session after login success
 def grab_user_id(session):
+    """
+    Params: Session after login success
+    Returns: Webhallen User ID
+    """
 
-    VERBOSE = envHandler.getVariable("VERBOSE")
+    verbose = envHandler.getVariable("VERBOSE")
     loghandler.print_log("Grabbing Webhallen User ID from cookies")
     try:
-        webhallen_auth_cookie = session.cookies["webhallen_auth"]
-        WEBHALLEN_USER_ID = json.loads(urllib.parse.unquote(webhallen_auth_cookie))
-    except:
-        loghandler.print_log("Failure! Exiting program")
+        webhallen_auth_token = session.cookies["webhallen_auth"]
+        webhallen_user_id = json.loads(urllib.parse.unquote(webhallen_auth_token))
+    except KeyError:
+        loghandler.print_log("Failed to get authentication token! Exiting program")
         sys.exit(1)
     else:
         loghandler.print_log(
-            "Webhallen User ID: " + WEBHALLEN_USER_ID["user_id"]
-            if VERBOSE == "y"
+            "Webhallen User ID: " + webhallen_user_id["user_id"]
+            if verbose == "y"
             else "Webhallen User ID: *******"
         )
 
-    return WEBHALLEN_USER_ID
+    return webhallen_user_id
 
-
-# Prints all supply drop status
-# Params: Response from supply drop request
 def supply_drop_status(response_supply_text):
+    """
+    Params: Response from supply drop request
+    Prints all supply drop status
+    """
     response_json = json.loads(response_supply_text)
     days, hours, minutes, seconds = get_drop_time(response_json["nextDropTime"])
 
@@ -180,12 +191,17 @@ def supply_drop_status(response_supply_text):
     return weekly_avaliable, activity_avaliable, levelup_avaliable
 
 
-def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
+def main(username: str, password: str):
+    """
+    Main function to run requests
+    Params: Username for Webhallen account
+    Params: Password for Webhallen account
+    """
     session = requests.Session()
-    response_login = http_handler.login_request(
-        session, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD
+    http_handler.login_request(
+        session, username, password
     )
-    WEBHALLEN_USER_ID = grab_user_id(session)
+    user_id = grab_user_id(session)
     response_supply = http_handler.supply_drop_request(session)
     weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(
         response_supply.text
@@ -194,13 +210,13 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
         print("Supply drop avaliable.")
 
         for _ in range(weekly_avaliable):
-            weekly_supply_drop_request(session, WEBHALLEN_USER_ID)
+            weekly_supply_drop_request(session, user_id)
 
         for _ in range(activity_avaliable):
-            activity_supply_drop_request(session, WEBHALLEN_USER_ID)
+            activity_supply_drop_request(session, user_id)
 
         for _ in range(levelup_avaliable):
-            levelup_supply_drop_request(session, WEBHALLEN_USER_ID)
+            levelup_supply_drop_request(session, user_id)
     else:
         loghandler.print_log("No supply drop avaliable.")
 
@@ -213,29 +229,29 @@ if __name__ == "__main__":
 
     # Get enviroment variables
     envHandler = enviroment_handler.envhandler()
-    WEBHALLEN_USERNAME = envHandler.getVariable("WEBHALLEN_USERNAME")
-    WEBHALLEN_PASSWORD = envHandler.getVariable("WEBHALLEN_PASSWORD")
+    webhallen_username = envHandler.getVariable("WEBHALLEN_USERNAME")
+    webhallen_password = envHandler.getVariable("WEBHALLEN_PASSWORD")
     CONTINUOUS = envHandler.getVariable("CONTINUOUS")
 
     # Continiously running the program
     if CONTINUOUS == "y":
 
         # Run once first
-        main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+        main(webhallen_username, webhallen_password)
 
         # Schedule running
         schedule.every().day.at("17:54").do(
-            main, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD
+            main, webhallen_username, webhallen_password
         )
 
-        print(f"Continuously running script....")
+        print("Continuously running script....")
         while 1:
             schedule.run_pending()
             time.sleep(1)
 
     # Run one time
     else:
-        main(WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
+        main(webhallen_username, webhallen_password)
 
         loghandler.print_log("AdiliusWSDG exiting.")
         sys.exit(1)
