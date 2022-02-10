@@ -5,37 +5,35 @@ import getpass
 from pathlib import Path
 
 # Handles enviroment variables
-class envhandler():
-
+class envhandler:
     def __init__(self):
         self.root_path = os.getcwd()
         self.path_to_data = "app/data/"
         self.env = ".env"
         self.path_to_list = "app/enviroment_handler/"
-        self.enviromentVariablesList = '.enviroment_variables'
+        self.enviromentVariablesList = ".enviroment_variables"
         self.variables = {}
         self.key = str(uuid.getnode())  # Get hardware adress as 48-bit positive integer
         self.init()
-
 
     def init(self):
         if self.checkEnvFilePresence():
             try:
                 self.readEnvContents()
             except:
-                print('Error reading enviroment file')
+                print("Error reading enviroment file")
                 self.promptNewEnv()
-                if self.getVariable('SAVE_ENV') == 'y':
+                if self.getVariable("SAVE_ENV") == "y":
                     self.writeEnvContents()
         else:
             self.promptNewEnv()
-            if self.getVariable('SAVE_ENV') == 'y':
+            if self.getVariable("SAVE_ENV") == "y":
                 self.writeEnvContents()
 
     # Checks if .env file exists
     def checkEnvFilePresence(self):
 
-        if os.path.isfile(os.path.join(self.root_path, 'app/data/', self.env)):
+        if os.path.isfile(os.path.join(self.root_path, "app/data/", self.env)):
             return True
         return False
 
@@ -49,15 +47,19 @@ class envhandler():
         enviromentVariablesDescription = []
 
         # Open file and read contents
-        with open(os.path.join(self.root_path, 'app/enviroment_handler/', self.enviromentVariablesList)) as env_file:
+        with open(
+            os.path.join(
+                self.root_path, "app/enviroment_handler/", self.enviromentVariablesList
+            )
+        ) as env_file:
             for line in env_file.read().splitlines():
-                name, description = line.split(',')
+                name, description = line.split(",")
                 enviromentVariablesNames.append(name)
                 enviromentVariablesDescription.append(description)
 
         return enviromentVariablesNames, enviromentVariablesDescription
 
-    #Encodes string using key
+    # Encodes string using key
     def encode(self, string):
         encoded_chars = []
 
@@ -68,16 +70,16 @@ class envhandler():
         encoded_string = "".join(encoded_chars)
         return encoded_string
 
-    #Decodes string using key
+    # Decodes string using key
     def decode(self, string):
         encoded_chars = []
-        
+
         encoded_chars = []
         for i in range(len(string)):
             key_c = self.key[i % len(self.key)]
             encoded_c = chr((ord(string[i]) - ord(key_c) + 256) % 256)
             encoded_chars.append(encoded_c)
-        encoded_string = ''.join(encoded_chars)
+        encoded_string = "".join(encoded_chars)
         return encoded_string
 
     # Read .env to env list
@@ -87,7 +89,11 @@ class envhandler():
         if self.checkEnvFilePresence() == True:
 
             # Open .env file
-            env_file = open(os.path.join(self.root_path, 'app/data/', self.env), 'r', encoding='utf-8')
+            env_file = open(
+                os.path.join(self.root_path, "app/data/", self.env),
+                "r",
+                encoding="utf-8",
+            )
 
             # Read ciphertext contents
             ciphertext = env_file.read()
@@ -100,7 +106,7 @@ class envhandler():
 
             # Save enviroment variables to class
             self.variables = json.loads(plaintext)
-            
+
     # Write env list to .ev
     def writeEnvContents(self):
 
@@ -108,11 +114,15 @@ class envhandler():
         json_env = json.dumps(self.variables)
 
         # Create directory
-        if not Path(os.path.join(self.root_path, 'app/data/')):     # Check if it does not exist
-            os.makedirs(os.path.join(self.root_path, 'app/data/'))  # Create directory
+        if not Path(
+            os.path.join(self.root_path, "app/data/")
+        ):  # Check if it does not exist
+            os.makedirs(os.path.join(self.root_path, "app/data/"))  # Create directory
 
-        # Create file   
-        env_file = open(os.path.join(self.root_path, 'app/data/', self.env), 'w', encoding='utf-8')  # Create/open file
+        # Create file
+        env_file = open(
+            os.path.join(self.root_path, "app/data/", self.env), "w", encoding="utf-8"
+        )  # Create/open file
 
         # Encode to ciphertext
         ciphertext = self.encode(json_env)
@@ -128,15 +138,15 @@ class envhandler():
 
         # Get enivorment variables to prompt user
         names, descriptions = self.getEnviromentVariablesList()
-        
+
         # Clear old variables
-        print('Setting new enviroment variables...')
+        print("Setting new enviroment variables...")
         self.variables.clear()
 
         # Ask user for variables
         for i in range(len(names)):
-            if names[i] == 'WEBHALLEN_PASSWORD':
-                variable = getpass.getpass(prompt=(descriptions[i]+": "))
+            if names[i] == "WEBHALLEN_PASSWORD":
+                variable = getpass.getpass(prompt=(descriptions[i] + ": "))
             else:
                 variable = input(descriptions[i] + ": ")
             self.variables[names[i]] = variable
