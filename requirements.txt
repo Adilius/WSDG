@@ -4,7 +4,7 @@ colorama==0.4.4
 commonmark==0.9.1
 idna==3.2
 Pygments==2.9.0
-requests==2.26.0
+requests==2.27.1
 rich==10.7.0
 schedule==1.1.0
 urllib3==1.26.6
