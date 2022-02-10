@@ -38,3 +38,21 @@ def login_request(session, WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
 
     loghandler.print_log('Login success!')
     return response
+
+# Sends status request to webhallen supply drop API
+# Params: Session after login success
+def supply_drop_request(session):
+    loghandler = logging_handler.loghandler()
+    SUPPLY_DROP_URL = 'https://www.webhallen.com/api/supply-drop'
+    loghandler.print_log('Sending supply drop status request...')
+    response = session.get(
+        url = SUPPLY_DROP_URL
+    )
+
+    if response.status_code != 200:
+        loghandler.print_log('Status code:', response.status_code)
+        loghandler.print_log('Supply drop page failed. Exiting...')
+        sys.exit()
+    
+    loghandler.print_log('Supply drop status success!')
+    return response

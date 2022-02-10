@@ -23,22 +23,6 @@ def get_drop_time(airplane_time: float):
 
 
 
-# Sends status request to webhallen supply drop API
-# Params: Session after login success
-def supply_drop_request(session):
-    SUPPLY_DROP_URL = 'https://www.webhallen.com/api/supply-drop'
-    loghandler.print_log('Sending supply drop status request...')
-    response = session.get(
-        url = SUPPLY_DROP_URL
-    )
-
-    if response.status_code != 200:
-        loghandler.print_log('Status code:', response.status_code)
-        loghandler.print_log('Supply drop page failed. Exiting...')
-        sys.exit()
-    
-    loghandler.print_log('Supply drop status success!')
-    return response
 
 # Sends request to collect weekly supply drop
 # Params: Session after login success
@@ -183,7 +167,7 @@ def main(WEBHALLEN_USERNAME: str, WEBHALLEN_PASSWORD: str):
     session = requests.Session()
     response_login = http_handler.login_request(session, WEBHALLEN_USERNAME, WEBHALLEN_PASSWORD)
     WEBHALLEN_USER_ID = grab_user_id(session)
-    response_supply = supply_drop_request(session)
+    response_supply = http_handler.supply_drop_request(session)
     weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(response_supply.text)
     if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
         print('Supply drop avaliable.')
