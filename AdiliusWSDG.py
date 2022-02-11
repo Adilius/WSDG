@@ -224,17 +224,17 @@ def main(username: str, password: str):
 if __name__ == "__main__":
 
     # Start logging handler
-    loghandler = logging_handler.loghandler()
+    loghandler = logging_handler.LogHandler()
     loghandler.print_log("AdiliusWSDG starting.")
 
     # Get enviroment variables
     envHandler = enviroment_handler.envhandler()
     webhallen_username = envHandler.getVariable("WEBHALLEN_USERNAME")
     webhallen_password = envHandler.getVariable("WEBHALLEN_PASSWORD")
-    CONTINUOUS = envHandler.getVariable("CONTINUOUS")
+    continuous = envHandler.getVariable("CONTINUOUS")
 
     # Continiously running the program
-    if CONTINUOUS == "y":
+    if continuous == "y":
 
         # Run once first
         main(webhallen_username, webhallen_password)
