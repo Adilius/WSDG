@@ -140,7 +140,7 @@ def grab_user_id(session):
         sys.exit(1)
     else:
         loghandler.print_log(
-            "Webhallen User ID: " + webhallen_user_id["user_id"]
+            "Webhallen User ID: " + str(webhallen_user_id["user_id"])
             if verbose == "y"
             else "Webhallen User ID: *******"
         )
