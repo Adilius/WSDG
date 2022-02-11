@@ -9,7 +9,7 @@ class envhandler:
     def __init__(self):
         self.root_path = os.getcwd()
         self.path_to_data = "app/data/"
-        self.env = ".env"
+        self.env_file = ".env"
         self.path_to_list = "app/enviroment_handler/"
         self.enviromentVariablesList = ".enviroment_variables"
         self.variables = {}
@@ -33,7 +33,7 @@ class envhandler:
     # Checks if .env file exists
     def checkEnvFilePresence(self):
 
-        if os.path.isfile(os.path.join(self.root_path, "app/data/", self.env)):
+        if os.path.isfile(os.path.join(self.root_path, self.env_file)):
             return True
         return False
 
@@ -90,7 +90,7 @@ class envhandler:
 
             # Open .env file
             env_file = open(
-                os.path.join(self.root_path, "app/data/", self.env),
+                os.path.join(self.root_path, self.env_file),
                 "r",
                 encoding="utf-8",
             )
@@ -113,15 +113,9 @@ class envhandler:
         # Enviroment variables to json string
         json_env = json.dumps(self.variables)
 
-        # Create directory
-        if not Path(
-            os.path.join(self.root_path, "app/data/")
-        ):  # Check if it does not exist
-            os.makedirs(os.path.join(self.root_path, "app/data/"))  # Create directory
-
         # Create file
         env_file = open(
-            os.path.join(self.root_path, "app/data/", self.env), "w", encoding="utf-8"
+            os.path.join(self.root_path, self.env_file), "w", encoding="utf-8"
         )  # Create/open file
 
         # Encode to ciphertext

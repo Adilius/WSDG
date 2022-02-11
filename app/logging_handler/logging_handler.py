@@ -6,7 +6,6 @@ from datetime import datetime
 class loghandler:
     def __init__(self):
         self.root_path = os.getcwd()
-        self.path_to_data = "app/data/"
         self.file_name = "app.log"
         self.init()
 
@@ -14,14 +13,14 @@ class loghandler:
 
         # Create directory
         if not Path(
-            os.path.join(self.root_path, "app/data/")
+            os.path.join(self.root_path)
         ):  # Check if it does not exist
-            os.makedirs(os.path.join(self.root_path, "app/data/"))  # Create directory
+            os.makedirs(self.root_path)  # Create directory
 
         # Create file
-        if not Path(os.path.join(self.root_path, f"app/data/{self.file_name}")):
+        if not Path(os.path.join(self.root_path, self.file_name)):
             log_file = open(
-                os.path.join(self.root_path, "app/data/", self.file_name),
+                os.path.join(self.root_path, self.file_name),
                 encoding="utf-8",
             )  # Create file
             log_file.close()
@@ -31,7 +30,7 @@ class loghandler:
 
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_file = open(
-            os.path.join(self.root_path, "app/data/", self.file_name),
+            os.path.join(self.root_path, self.file_name),
             "a",
             encoding="utf-8",
         )  # Open file
