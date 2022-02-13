@@ -1,6 +1,12 @@
+<div align="center">
+ 
+![large_2](https://user-images.githubusercontent.com/43440295/153767327-512a4741-143e-4720-90a7-c603393aba13.png)
+
+# AdiliusWSDG 
+</div>
+
 ![Python version](https://img.shields.io/badge/python-v3.9.6-blue)
 
-# AdiliusWSDG - Adilius Webhallen Supply Drop Grabber
 Simple local Python script to get status of supply drops (weekly/daily, activity, level up) and grab them for your account automatically.
 
 ![RUNTIME](https://user-images.githubusercontent.com/43440295/127823499-2a855c8f-ba7d-4f6b-b3aa-0a05f862e04a.gif)
