@@ -21,7 +21,7 @@ Simple local Python script to get status of supply drops (weekly/daily, activity
 
 3. Install required packages: `pip install -r .\requirements.txt`
 
-4. Run script: `python .\AdiliusWSDG.py`
+4. Run script: `python .\adiliuswsdg.py`
 
 ## Variables
 
@@ -31,8 +31,22 @@ At first run, or if enviroment file is missing/corrupt. You will be prompted for
 |WEBHALLEN_USERNAME| example_email     | Set your login email    |
 |WEBHALLEN_PASSWORD| example_password     | Set your login password    |
 | VERBOSE   | y/n     | Prints email & password in the terminal (for debugging)    |
-| CONTINUOUS   | y/n     | Continuously run script and grab supply every midnight    |
 | SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
+
+## Setting up scheduled task
+TODO
+Cron in linux, scheduler in windows
+
+## Run continiously
+The script can be setup to run in the background as a continious process.
+
+### Windows
+1. Run script to initialize variables: `python .\adiliuswsdg.py`
+2. Create a new minimized command prompt: `cmd.exe /c start /min python .\adiliuswsdg.py -c`
+
+### Linux
+1. Run script to initialize variables: `python3 .\adiliuswsdg.py`
+2. Start a new "no hang up" process in the background: `nohup python3 adiliuswsdg.py -c &`
 
 ## Contributing
 
