@@ -8,12 +8,14 @@ import urllib.parse
 from datetime import datetime
 import requests
 import schedule
+import argparse
 
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
 from app.http_handler import http_handler
 
 BASE_API_URL = "https://www.webhallen.com/api/"
+CONTINIOUS_GRAB_TIME = "00:10"
 
 def get_drop_time(airplane_time: float):
     """
@@ -231,16 +233,20 @@ if __name__ == "__main__":
     envHandler = enviroment_handler.envhandler()
     webhallen_username = envHandler.getVariable("WEBHALLEN_USERNAME")
     webhallen_password = envHandler.getVariable("WEBHALLEN_PASSWORD")
-    continuous = envHandler.getVariable("CONTINUOUS")
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Automatically grab Webhallen supply drops using HTTP requests.')
+    parser.add_argument('-c', '--continuous', action='store_true', help=f'Run script as daemon and continuously grab drops at {CONTINIOUS_GRAB_TIME}')
+    args = parser.parse_args()
 
     # Continiously running the program
-    if continuous == "y":
+    if args.continuous:
 
         # Run once first
         main(webhallen_username, webhallen_password)
 
         # Schedule running
-        schedule.every().day.at("00:10").do(
+        schedule.every().day.at(CONTINIOUS_GRAB_TIME).do(
             main, webhallen_username, webhallen_password
         )
 
