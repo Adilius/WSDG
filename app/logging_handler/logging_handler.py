@@ -31,7 +31,7 @@ class LogHandler:
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(os.path.join(self.root_path, self.file_name),"a",encoding="utf-8") as log_file:
             log = time + " | " + text
-            log_file.write(f"{log} + \n")
+            log_file.write(f"{log}\n")
         return log
 
     def print_log(self, text: str):
