@@ -15,34 +15,22 @@ Simple local Python script to get status of supply drops (weekly/daily, activity
 
 
 ## Quick start
-1. Clone repository:
-```bash
-git clone https://github.com/Adilius/AdiliusWSDG.git
-```
+1. Clone repository: `git clone https://github.com/Adilius/AdiliusWSDG.git`
 
-2. Change directory to repository:
-```bash
-cd AdiliusWSDG/
-```
+2. Change directory to repository: `cd AdiliusWSDG/`
 
-3. Install required packages:
-```bash
-pip install -r .\requirements.txt
-```
+3. Install required packages: `pip install -r .\requirements.txt`
 
-4. Run script!
-```bash
-python .\AdiliusWSDG.py
-```
+4. Run script: `python .\AdiliusWSDG.py`
 
 ## Variables
 
-At first prompt, or if enviroment file is missing. You will be prompted for variables to run the script.
+At first run, or if enviroment file is missing/corrupt. You will be prompted for variables to run the script.
 | Variable name | Value | Description |
 | :---         |     :---:      |         :---  |
 |WEBHALLEN_USERNAME| example_email     | Set your login email    |
 |WEBHALLEN_PASSWORD| example_password     | Set your login password    |
-| VERBOSE   | y/n     | Prints sensitive data in the terminal    |
+| VERBOSE   | y/n     | Prints email & password in the terminal (for debugging)    |
 | CONTINUOUS   | y/n     | Continuously run script and grab supply every midnight    |
 | SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
 
