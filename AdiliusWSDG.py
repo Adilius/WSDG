@@ -193,7 +193,7 @@ def supply_drop_status(response_supply_text):
 
 def main(username: str, password: str):
     """
-    Main function to run requests
+    Main function to run script
     Params: Username for Webhallen account
     Params: Password for Webhallen account
     """
@@ -240,12 +240,16 @@ if __name__ == "__main__":
         main(webhallen_username, webhallen_password)
 
         # Schedule running
-        schedule.every().day.at("17:54").do(
+        schedule.every().day.at("00:10").do(
             main, webhallen_username, webhallen_password
         )
 
-        print("Continuously running script....")
+        # Check and run scheduled time & display loading animation
+        animation = ["    ",".   ", "..  ", "... ", "...."]
+        index = 0
         while 1:
+            print(f"Continuously running script{animation[index % len(animation)]}", end='\r')
+            index += 1
             schedule.run_pending()
             time.sleep(1)
 
