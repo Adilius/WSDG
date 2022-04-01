@@ -1,150 +1,181 @@
+"""
+Module to handle enviroment variables in the program
+Prompting user, encrypting to file, and reading from file
+"""
+
 import os
 import uuid
 import json
 import getpass
-from pathlib import Path
 
 # Handles enviroment variables
-class envhandler:
+class EnvHandler:
+    """
+    Class to handle enviroment variables
+    """
+
     def __init__(self):
         self.root_path = os.getcwd()
         self.path_to_data = "app/data/"
         self.env_file = ".env"
         self.path_to_list = "app/enviroment_handler/"
-        self.enviromentVariablesList = ".enviroment_variables"
+        self.enviroment_variables_list = ".enviroment_variables"
         self.variables = {}
         self.key = str(uuid.getnode())  # Get hardware adress as 48-bit positive integer
         self.init()
 
     def init(self):
-        if self.checkEnvFilePresence():
+        """
+        Initialize enviroment handler class
+
+        """
+        if self.is_env_file_presence():
             try:
-                self.readEnvContents()
-            except:
+                self.read_env_contents()
+            except FileNotFoundError:
                 print("Error reading enviroment file")
-                self.promptNewEnv()
-                if self.getVariable("SAVE_ENV") == "y":
-                    self.writeEnvContents()
+                self.prompt_new_env()
         else:
-            self.promptNewEnv()
-            if self.getVariable("SAVE_ENV") == "y":
-                self.writeEnvContents()
+            self.prompt_new_env()
 
     # Checks if .env file exists
-    def checkEnvFilePresence(self):
+    def is_env_file_presence(self):
+        """
+        Returns true if enviroment variable file exists
+        """
 
         if os.path.isfile(os.path.join(self.root_path, self.env_file)):
             return True
         return False
 
     # Returns list of variable names and descriptions
-    def getEnviromentVariablesList(self):
+    def getenviroment_variables_list(self):
+        """
+        Returns list of enviroment variables names
+        Returns list of enviroment variables description
+        """
 
         # List to hold variable names
-        enviromentVariablesNames = []
+        enviroment_variables_names = []
 
         # List to hold variable descriptions
-        enviromentVariablesDescription = []
+        enviroment_variables_description = []
 
         # Open file and read contents
         with open(
-            os.path.join(
-                self.root_path, "app/enviroment_handler/", self.enviromentVariablesList
-            )
+            file=os.path.join(
+                self.root_path,
+                "app/enviroment_handler/",
+                self.enviroment_variables_list,
+            ),
+            mode="r",
+            encoding="utf-8",
         ) as env_file:
             for line in env_file.read().splitlines():
                 name, description = line.split(",")
-                enviromentVariablesNames.append(name)
-                enviromentVariablesDescription.append(description)
+                enviroment_variables_names.append(name)
+                enviroment_variables_description.append(description)
 
-        return enviromentVariablesNames, enviromentVariablesDescription
+        return enviroment_variables_names, enviroment_variables_description
 
-    # Encodes string using key
-    def encode(self, string):
+    def encode(self, plaintext):
+        """
+        Returns encoded ciphertext using initialized key
+        """
         encoded_chars = []
 
-        for i in range(len(string)):
-            key_c = self.key[i % len(self.key)]
-            encoded_c = chr(ord(string[i]) + ord(key_c) % 256)
+        for index, character in enumerate(plaintext):
+            key_c = self.key[index % len(self.key)]
+            encoded_c = chr(ord(character) + ord(key_c) % 256)
             encoded_chars.append(encoded_c)
-        encoded_string = "".join(encoded_chars)
-        return encoded_string
+        ciphertext = "".join(encoded_chars)
+        return ciphertext
 
-    # Decodes string using key
-    def decode(self, string):
-        encoded_chars = []
+    def decode(self, ciphertext):
+        """
+        Returns decoded plaintext using initialized key
+        """
 
-        encoded_chars = []
-        for i in range(len(string)):
-            key_c = self.key[i % len(self.key)]
-            encoded_c = chr((ord(string[i]) - ord(key_c) + 256) % 256)
-            encoded_chars.append(encoded_c)
-        encoded_string = "".join(encoded_chars)
-        return encoded_string
+        decoded_chars = []
+        for index, character in enumerate(ciphertext):
+            key_c = self.key[index % len(self.key)]
+            decoded_c = chr((ord(character) - ord(key_c) + 256) % 256)
+            decoded_chars.append(decoded_c)
+        plaintext = "".join(decoded_chars)
+        return plaintext
 
-    # Read .env to env list
-    def readEnvContents(self):
+    def read_env_contents(self):
+        """
+        Returns enviroment variables contents as dictionary
+        """
 
-        # If .env file exists
-        if self.checkEnvFilePresence() == True:
+        if self.is_env_file_presence():
 
             # Open .env file
-            env_file = open(
-                os.path.join(self.root_path, self.env_file),
-                "r",
+            with open(
+                file=os.path.join(self.root_path, self.env_file),
+                mode="r",
                 encoding="utf-8",
-            )
+            ) as env_file:
 
-            # Read ciphertext contents
-            ciphertext = env_file.read()
+                # Read ciphertext contents
+                ciphertext = env_file.read()
 
-            # Close .env file
-            env_file.close()
+                # Close .env file
+                env_file.close()
 
-            # Decipher to plaintext
-            plaintext = self.decode(ciphertext)
+                # Decipher to plaintext
+                plaintext = self.decode(ciphertext)
 
-            # Save enviroment variables to class
-            self.variables = json.loads(plaintext)
+                # Save enviroment variables to class
+                self.variables = json.loads(plaintext)
 
-    # Write env list to .ev
-    def writeEnvContents(self):
+    def write_env_contents(self):
+        """
+        Write enviroment variables to .env file
+        """
 
         # Enviroment variables to json string
         json_env = json.dumps(self.variables)
 
         # Create file
-        env_file = open(
+        with open(
             os.path.join(self.root_path, self.env_file), "w", encoding="utf-8"
-        )  # Create/open file
+        ) as env_file:
+            # Encode to ciphertext
+            ciphertext = self.encode(json_env)
 
-        # Encode to ciphertext
-        ciphertext = self.encode(json_env)
+            # Write ciphertext to .env
+            env_file.write(ciphertext)
 
-        # Write ciphertext to .env
-        env_file.write(ciphertext)
+            # Close .env file
+            env_file.close()
 
-        # Close .env file
-        env_file.close()
-
-    # Get new enviroment variables from user
-    def promptNewEnv(self):
+    def prompt_new_env(self):
+        """
+        Prompt user to enter new enviroment variables
+        """
 
         # Get enivorment variables to prompt user
-        names, descriptions = self.getEnviromentVariablesList()
+        names, descriptions = self.getenviroment_variables_list()
 
         # Clear old variables
         print("Setting new enviroment variables...")
         self.variables.clear()
 
         # Ask user for variables
-        for i in range(len(names)):
-            if names[i] == "WEBHALLEN_PASSWORD":
-                variable = getpass.getpass(prompt=(descriptions[i] + ": "))
+        for name, description in zip(names, descriptions):
+            if name == "WEBHALLEN_PASSWORD":
+                variable = getpass.getpass(prompt=(description + ": "))
             else:
-                variable = input(descriptions[i] + ": ")
-            self.variables[names[i]] = variable
+                variable = input(description + ": ")
+            self.variables[name] = variable
 
-    # Returns variable value given variable name
-    def getVariable(self, variable_name):
+        if self.get_variable("SAVE_ENV") == "y":
+            self.write_env_contents()
+
+    def get_variable(self, variable_name):
+        """
+        Returns value of variable
+        """
         return self.variables[variable_name]

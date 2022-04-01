@@ -6,9 +6,10 @@ import sys
 import time
 import urllib.parse
 from datetime import datetime
+import argparse
 import requests
 import schedule
-import argparse
+
 
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
@@ -16,6 +17,7 @@ from app.http_handler import http_handler
 
 BASE_API_URL = "https://www.webhallen.com/api/"
 CONTINIOUS_GRAB_TIME = "00:10"
+
 
 def get_drop_time(airplane_time: float):
     """
@@ -28,6 +30,7 @@ def get_drop_time(airplane_time: float):
     minutes = (time_difference - days * 86400 - hours * 3600) // 60
     seconds = time_difference - days * 86400 - hours * 3600 - minutes * 60
     return days, hours, minutes, seconds
+
 
 def weekly_supply_drop_request(session, webhallen_user_id: str):
     """
@@ -61,6 +64,7 @@ def weekly_supply_drop_request(session, webhallen_user_id: str):
         description = drop["description"]
         loghandler.print_log(f"Grabbed supply drop {name} and got {description}")
 
+
 def activity_supply_drop_request(session, webhallen_user_id: str):
     """
     Params: Session after login success
@@ -92,6 +96,7 @@ def activity_supply_drop_request(session, webhallen_user_id: str):
         return
 
     print(response)
+
 
 def levelup_supply_drop_request(session, webhallen_user_id: str):
     """
@@ -126,13 +131,14 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
 
     print(response)
 
+
 def grab_user_id(session):
     """
     Params: Session after login success
     Returns: Webhallen User ID
     """
 
-    verbose = envHandler.getVariable("VERBOSE")
+    verbose = EnvHandler.get_variable("VERBOSE")
     loghandler.print_log("Grabbing Webhallen User ID from cookies")
     try:
         webhallen_auth_token = session.cookies["webhallen_auth"]
@@ -148,6 +154,7 @@ def grab_user_id(session):
         )
 
     return webhallen_user_id
+
 
 def supply_drop_status(response_supply_text):
     """
@@ -193,16 +200,14 @@ def supply_drop_status(response_supply_text):
     return weekly_avaliable, activity_avaliable, levelup_avaliable
 
 
-def main(username: str, password: str):
+def run_script(username: str, password: str):
     """
     Main function to run script
     Params: Username for Webhallen account
     Params: Password for Webhallen account
     """
     session = requests.Session()
-    http_handler.login_request(
-        session, username, password
-    )
+    http_handler.login_request(session, username, password)
     user_id = grab_user_id(session)
     response_supply = http_handler.supply_drop_request(session)
     weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(
@@ -223,45 +228,67 @@ def main(username: str, password: str):
         loghandler.print_log("No supply drop avaliable.")
 
 
-if __name__ == "__main__":
 
-    # Start logging handler
-    loghandler = logging_handler.LogHandler()
-    loghandler.print_log("AdiliusWSDG starting.")
 
-    # Get enviroment variables
-    envHandler = enviroment_handler.envhandler()
-    webhallen_username = envHandler.getVariable("WEBHALLEN_USERNAME")
-    webhallen_password = envHandler.getVariable("WEBHALLEN_PASSWORD")
+def main():
+    """
+    Initialize start up settings
+    """
+
+    # Get login variables
+    webhallen_username = EnvHandler.get_variable("WEBHALLEN_USERNAME")
+    webhallen_password = EnvHandler.get_variable("WEBHALLEN_PASSWORD")
 
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Automatically grab Webhallen supply drops using HTTP requests.')
-    parser.add_argument('-c', '--continuous', action='store_true', help=f'Run script as daemon and continuously grab drops at {CONTINIOUS_GRAB_TIME}')
+    parser = argparse.ArgumentParser(
+        description="Automatically grab Webhallen supply drops using HTTP requests."
+    )
+    parser.add_argument(
+        "-c",
+        "--continuous",
+        action="store_true",
+        help=f"Run script as daemon and continuously grab drops at {CONTINIOUS_GRAB_TIME}",
+    )
     args = parser.parse_args()
 
     # Continiously running the program
     if args.continuous:
 
         # Run once first
-        main(webhallen_username, webhallen_password)
+        run_script(webhallen_username, webhallen_password)
 
         # Schedule running
         schedule.every().day.at(CONTINIOUS_GRAB_TIME).do(
-            main, webhallen_username, webhallen_password
+            run_script, webhallen_username, webhallen_password
         )
 
         # Check and run scheduled time & display loading animation
-        animation = ["    ",".   ", "..  ", "... ", "...."]
+        animation = ["    ", ".   ", "..  ", "... ", "...."]
         index = 0
         while 1:
-            print(f"Continuously running script{animation[index % len(animation)]}", end='\r')
+            print(
+                f"Continuously running script{animation[index % len(animation)]}",
+                end="\r",
+            )
             index += 1
             schedule.run_pending()
             time.sleep(1)
 
     # Run one time
     else:
-        main(webhallen_username, webhallen_password)
+        run_script(webhallen_username, webhallen_password)
 
         loghandler.print_log("AdiliusWSDG exiting.")
         sys.exit(1)
+
+if __name__ == "__main__":
+
+    # Start logging handler globally
+    loghandler = logging_handler.LogHandler()
+    loghandler.print_log("AdiliusWSDG starting.")
+
+    # Start enviroment handler globally
+    EnvHandler = enviroment_handler.EnvHandler()
+
+    # Run start up script
+    main()

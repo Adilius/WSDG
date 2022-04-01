@@ -10,6 +10,7 @@ from ..enviroment_handler import enviroment_handler
 LOGIN_URL = "https://www.webhallen.com/api/login"
 SUPPLY_DROP_URL = "https://www.webhallen.com/api/supply-drop"
 
+
 def login_request(session, webhallen_username: str, webhallen_password: str):
     """
     Sends request to login to webhallen
@@ -17,8 +18,8 @@ def login_request(session, webhallen_username: str, webhallen_password: str):
     Returns: Response
     """
     loghandler = logging_handler.LogHandler()
-    env_handler = enviroment_handler.envhandler()
-    verbose = env_handler.getVariable("VERBOSE")
+    env_handler = enviroment_handler.EnvHandler()
+    verbose = env_handler.get_variable("VERBOSE")
 
     headers = {"Content-Type": "application/json"}
     body = json.dumps({"username": webhallen_username, "password": webhallen_password})
@@ -47,6 +48,7 @@ def login_request(session, webhallen_username: str, webhallen_password: str):
 
     loghandler.print_log("Login success!")
     return response
+
 
 def supply_drop_request(session):
     """

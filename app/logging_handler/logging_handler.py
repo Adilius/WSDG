@@ -6,10 +6,12 @@ import os
 from pathlib import Path
 from datetime import datetime
 
+
 class LogHandler:
     """
     Class to handle logging
     """
+
     def __init__(self):
         self.root_path = os.getcwd()
         self.file_name = "app.log"
@@ -21,7 +23,7 @@ class LogHandler:
         """
 
         if not Path(os.path.join(self.root_path, self.file_name)):
-            with open( os.path.join(self.root_path, self.file_name), encoding="utf-8"):
+            with open(os.path.join(self.root_path, self.file_name), encoding="utf-8"):
                 pass
 
     def write_log(self, text: str):
@@ -29,7 +31,9 @@ class LogHandler:
         Writes text to log file.
         """
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(os.path.join(self.root_path, self.file_name),"a",encoding="utf-8") as log_file:
+        with open(
+            os.path.join(self.root_path, self.file_name), "a", encoding="utf-8"
+        ) as log_file:
             log = time + " | " + text
             log_file.write(f"{log}\n")
         return log
