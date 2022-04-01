@@ -9,9 +9,13 @@
 
 Simple local Python script to get status of supply drops (weekly/daily, activity, level up) and grab them for your account automatically.
 
-![RUNTIME](https://user-images.githubusercontent.com/43440295/127823499-2a855c8f-ba7d-4f6b-b3aa-0a05f862e04a.gif)
+Run-time             |  Logs
+:-------------------------:|:-------------------------:
+![RUNTIME](https://user-images.githubusercontent.com/43440295/127823499-2a855c8f-ba7d-4f6b-b3aa-0a05f862e04a.gif)  |  ![LOGS](https://user-images.githubusercontent.com/43440295/134048866-0243ae2a-23a8-432a-acc8-a8d3ec1af201.png)
 
-![LOGS](https://user-images.githubusercontent.com/43440295/134048866-0243ae2a-23a8-432a-acc8-a8d3ec1af201.png)
+
+
+
 
 
 ## Quick start
@@ -47,6 +51,8 @@ The script can be setup to run in the background as a continious process.
 ### Linux
 1. Run script to initialize variables: `python3 .\adiliuswsdg.py`
 2. Start a new "no hang up" process in the background: `nohup python3 adiliuswsdg.py -c &`
+
+Killing the process can easily be done by using: `pkill -9 -f adiliuswsdg`
 
 ## Contributing
 
