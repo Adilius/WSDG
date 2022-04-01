@@ -16,5 +16,5 @@ rich==10.7.0
 schedule==1.1.0
 toml==0.10.2
 typing-extensions==4.0.1
-urllib3==1.26.6
+urllib3==1.26.9
 wrapt==1.13.3
