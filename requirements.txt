@@ -10,7 +10,7 @@ logging==0.4.9.6
 mccabe==0.6.1
 platformdirs==2.5.0
 Pygments==2.9.0
-pylint==2.12.2
+pylint==2.13.4
 requests==2.26.0
 rich==10.7.0
 schedule==1.1.0
