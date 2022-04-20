@@ -1,13 +1,18 @@
 <div align="center">
- 
-![large_2](https://user-images.githubusercontent.com/43440295/153767327-512a4741-143e-4720-90a7-c603393aba13.png)
 
-# AdiliusWSDG 
+![large_2](https://user-images.githubusercontent.com/43440295/153767327-512a4741-143e-4720-90a7-c603393aba13.png)
+ 
 </div>
+ 
+# AdiliusWSDG: Automate your webhallen experience with Python!
+
+AdiliusWSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.
+Its goal is to enchance the Webhallen experience for the tech enthusiast.
+With an easy one-time setup never again miss a supply drop.
+More features to come!
 
 ![Python version](https://img.shields.io/badge/python-v3.9.6-blue)
 
-Simple local Python script to get status of supply drops (weekly/daily, activity, level up) and grab them for your account automatically.
 
 Run-time             |  Logs
 :-------------------------:|:-------------------------:
@@ -27,7 +32,7 @@ Run-time             |  Logs
 
 4. Run script: `python .\adiliuswsdg.py`
 
-## Variables
+## Enviroment variables (optional)
 
 At first run, or if enviroment file is missing/corrupt. You will be prompted for variables to run the script.
 | Variable name | Value | Description |
@@ -63,6 +68,3 @@ If you want to contribute, make a pull request.
 ## Acknowledgment
 
 Acknowledgement to [mirague](https://github.com/mirague) with their [webhallen-supply-drop](https://github.com/mirague/webhallen-supply-drop) repository which sparked the idea for this python project.
-
-## License
-[MIT](https://github.com/Adilius/AdiliusWSDG/blob/master/LICENSE)
