@@ -8,7 +8,7 @@ isort==5.10.1
 lazy-object-proxy==1.7.1
 mccabe==0.6.1
 platformdirs==2.5.0
-Pygments==2.9.0
+Pygments==2.12.0
 pylint==2.12.2
 requests==2.26.0
 rich==10.7.0
