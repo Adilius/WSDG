@@ -8,8 +8,6 @@ import urllib.parse
 from datetime import datetime
 import argparse
 import requests
-import schedule
-
 
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
@@ -247,32 +245,34 @@ def main():
         "-c",
         "--continuous",
         action="store_true",
-        help=f"Run script as daemon and continuously grab drops at {CONTINIOUS_GRAB_TIME}",
+        help=f"Run script in background and continuously grab drops at {CONTINIOUS_GRAB_TIME}",
     )
     args = parser.parse_args()
 
     # Continiously running the program
     if args.continuous:
 
+        time_until_repeat = 86400
+        timer = 0
+
         # Run once first
         run_script(webhallen_username, webhallen_password)
 
-        # Schedule running
-        schedule.every().day.at(CONTINIOUS_GRAB_TIME).do(
-            run_script, webhallen_username, webhallen_password
-        )
+        while True:
+            seconds_left = time_until_repeat-timer
+            time_left = datetime.utcfromtimestamp(seconds_left).strftime("%H:%M:%S")
+            print(f"Continuously running script: {time_left} seconds until next run",end="\r")
 
-        # Check and run scheduled time & display loading animation
-        animation = ["    ", ".   ", "..  ", "... ", "...."]
-        index = 0
-        while 1:
-            print(
-                f"Continuously running script{animation[index % len(animation)]}",
-                end="\r",
-            )
-            index += 1
-            schedule.run_pending()
+            # 24 hours has passed
+            if timer == time_until_repeat:
+                run_script(webhallen_username, webhallen_password)
+                timer = 0
+
+            # Sleep 1 second
             time.sleep(1)
+
+            # Increment timer
+            timer += 1
 
     # Run one time
     else:
