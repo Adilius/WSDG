@@ -11,8 +11,8 @@ platformdirs==2.5.0
 Pygments==2.9.0
 pylint==2.12.2
 requests==2.26.0
-rich==10.7.0
+rich==12.4.4
 toml==0.10.2
-typing-extensions==4.0.1
+typing-extensions==4.3.0
 urllib3==1.26.6
 wrapt==1.13.3
