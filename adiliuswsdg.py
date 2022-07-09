@@ -154,7 +154,7 @@ def grab_user_id(session):
     return webhallen_user_id
 
 
-def supply_drop_status(response_supply_text):
+def print_supply_drop_status(response_supply_text):
     """
     Params: Response from supply drop request
     Prints all supply drop status
@@ -184,7 +184,7 @@ def supply_drop_status(response_supply_text):
     print(
         "Activity drop in: "
         + str(response_json["crateTypes"][1]["nextResupplyIn"])
-        + " drops"
+        + " orders"
     )
 
     print("Level up drop avaliable:", levelup_avaliable)
@@ -204,11 +204,17 @@ def run_script(username: str, password: str):
     Params: Username for Webhallen account
     Params: Password for Webhallen account
     """
+
+    # Create a session which stores our cookie for further API requests
     session = requests.Session()
+
+    # Login to grab cookie & get user ID for further API requests
     http_handler.login_request(session, username, password)
     user_id = grab_user_id(session)
+
+    # Call API to get time left for all supply drops
     response_supply = http_handler.supply_drop_request(session)
-    weekly_avaliable, activity_avaliable, levelup_avaliable = supply_drop_status(
+    weekly_avaliable, activity_avaliable, levelup_avaliable = print_supply_drop_status(
         response_supply.text
     )
     if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
@@ -239,24 +245,37 @@ def main():
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
-        description="Automatically grab Webhallen supply drops using HTTP requests."
+        description="Automatically grab Webhallen supply drops using HTTP requests.",
+        formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
         "-c",
         "--continuous",
         action="store_true",
+        default=False,
+        required=False, 
         help=f"Run script in background and continuously grab drops at {CONTINIOUS_GRAB_TIME}",
+        dest="continuous"
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        required=False,
+        help=f"Increase verbose levels: \n 0. No verbosity (default) \n 1. Prints & logs more debug messages \n 2. Prints & logs more debug messages with account details included",
+        dest="verbose"
     )
     args = parser.parse_args()
+
+    # Run script
+    run_script(webhallen_username, webhallen_password)
 
     # Continiously running the program
     if args.continuous:
 
         time_until_repeat = 86400
         timer = 0
-
-        # Run once first
-        run_script(webhallen_username, webhallen_password)
 
         while True:
             seconds_left = time_until_repeat-timer
@@ -274,12 +293,9 @@ def main():
             # Increment timer
             timer += 1
 
-    # Run one time
-    else:
-        run_script(webhallen_username, webhallen_password)
-
-        loghandler.print_log("AdiliusWSDG exiting.")
-        sys.exit(1)
+    # Exit
+    loghandler.print_log("AdiliusWSDG exiting.")
+    sys.exit(1)
 
 if __name__ == "__main__":
 
