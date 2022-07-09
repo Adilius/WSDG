@@ -8,6 +8,9 @@ import urllib.parse
 from datetime import datetime
 import argparse
 import requests
+import logging
+import os
+from pathlib import Path
 
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
@@ -301,7 +304,15 @@ if __name__ == "__main__":
 
     # Start logging handler globally
     loghandler = logging_handler.LogHandler()
-    loghandler.print_log("AdiliusWSDG starting.")
+    
+    filename = os.path.join(Path(__file__).parent, 'app.log')
+    logging.basicConfig(filename=filename,
+                        encoding='utf-8', 
+                        format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        level=logging.DEBUG)
+    logging.info('AdiliusWSDG starting.')
+    #loghandler.print_log("AdiliusWSDG starting.")
 
     # Start enviroment handler globally
     EnvHandler = enviroment_handler.EnvHandler()
