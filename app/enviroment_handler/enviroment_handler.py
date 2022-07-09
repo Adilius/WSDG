@@ -7,6 +7,11 @@ import os
 import uuid
 import json
 import getpass
+import sys
+
+from pathlib import Path
+
+from ..logging_handler import logging_handler
 
 # Handles enviroment variables
 class EnvHandler:
@@ -15,14 +20,20 @@ class EnvHandler:
     """
 
     def __init__(self):
-        self.root_path = os.getcwd()
-        self.path_to_data = "app/data/"
-        self.env_file = ".env"
-        self.path_to_list = "app/enviroment_handler/"
-        self.enviroment_variables_list = ".enviroment_variables"
+        # Get paths
+        self.module_path = Path(__file__).parents[0]
+        self.root_path = Path(__file__).parents[2]
+
+        # Enviroment file names
+        self.enviroment_variables_name = ".enviroment_variables"
+
+        # Store variables
         self.variables = {}
         self.key = str(uuid.getnode())  # Get hardware adress as 48-bit positive integer
+
+        # Get or Create enviroment file
         self.init()
+
 
     def init(self):
         """
@@ -33,7 +44,7 @@ class EnvHandler:
             try:
                 self.read_env_contents()
             except FileNotFoundError:
-                print("Error reading enviroment file")
+                print("Could not find enviroment file. Creating new...")
                 self.prompt_new_env()
         else:
             self.prompt_new_env()
@@ -43,8 +54,8 @@ class EnvHandler:
         """
         Returns true if enviroment variable file exists
         """
-
-        if os.path.isfile(os.path.join(self.root_path, self.env_file)):
+        relative_env_file_path = os.path.join(self.root_path, ".env")
+        if os.path.isfile(relative_env_file_path):
             return True
         return False
 
@@ -64,14 +75,13 @@ class EnvHandler:
         # Open file and read contents
         with open(
             file=os.path.join(
-                self.root_path,
-                "app/enviroment_handler/",
-                self.enviroment_variables_list,
+                self.module_path,
+                self.enviroment_variables_name
             ),
             mode="r",
             encoding="utf-8",
-        ) as env_file:
-            for line in env_file.read().splitlines():
+        ) as env_file_name:
+            for line in env_file_name.read().splitlines():
                 name, description = line.split(",")
                 enviroment_variables_names.append(name)
                 enviroment_variables_description.append(description)
@@ -113,22 +123,27 @@ class EnvHandler:
 
             # Open .env file
             with open(
-                file=os.path.join(self.root_path, self.env_file),
+                file=os.path.join(self.root_path, ".env"),
                 mode="r",
                 encoding="utf-8",
-            ) as env_file:
+            ) as env_file_name:
 
                 # Read ciphertext contents
-                ciphertext = env_file.read()
+                ciphertext = env_file_name.read()
 
                 # Close .env file
-                env_file.close()
+                env_file_name.close()
 
                 # Decipher to plaintext
                 plaintext = self.decode(ciphertext)
 
                 # Save enviroment variables to class
-                self.variables = json.loads(plaintext)
+                try:
+                    self.variables = json.loads(plaintext)
+                except:
+                    loghandler = logging_handler.LogHandler()
+                    loghandler.print_log("Failed to read enviroment file! Try deleting file and re-create it. Exiting program...")
+                    sys.exit(1)
 
     def write_env_contents(self):
         """
@@ -140,16 +155,16 @@ class EnvHandler:
 
         # Create file
         with open(
-            os.path.join(self.root_path, self.env_file), "w", encoding="utf-8"
-        ) as env_file:
+            os.path.join(self.root_path, ".env"), "w", encoding="utf-8"
+        ) as env_file_name:
             # Encode to ciphertext
             ciphertext = self.encode(json_env)
 
             # Write ciphertext to .env
-            env_file.write(ciphertext)
+            env_file_name.write(ciphertext)
 
             # Close .env file
-            env_file.close()
+            env_file_name.close()
 
     def prompt_new_env(self):
         """
