@@ -32,6 +32,14 @@ Run-time             |  Logs
 
 4. Run script: `python .\adiliuswsdg.py`
 
+## Command Line Arguments
+
+| Command Line Option | Description |
+|  :---  |  :---:  |
+|-c --continuous| Continuously run the script each 24 hours |
+|-v --verbose| Increase verbose levels: <br/>0. No verbosity (default) <br/>1. Prints & logs more debug messages <br/>2. Account details included (email & password) |
+
+
 ## Enviroment variables (optional)
 
 At first run, or if enviroment file is missing/corrupt. You will be prompted for variables to run the script.
@@ -39,7 +47,6 @@ At first run, or if enviroment file is missing/corrupt. You will be prompted for
 | :---         |     :---:      |         :---  |
 |WEBHALLEN_USERNAME| example_email     | Set your login email    |
 |WEBHALLEN_PASSWORD| example_password     | Set your login password    |
-| VERBOSE   | y/n     | Prints email & password in the terminal (for debugging)    |
 | SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
 
 ## Setting up scheduled task
@@ -47,7 +54,7 @@ TODO
 Cron in linux, scheduler in windows
 
 ## Run continiously
-The script can be setup to run in the background as a continious process.
+The script can be setup to run in the background as a continuous process.
 
 ### Windows
 1. Run script to initialize variables: `python .\adiliuswsdg.py`
