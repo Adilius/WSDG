@@ -1,4 +1,3 @@
 WEBHALLEN_USERNAME,Set your login email
 WEBHALLEN_PASSWORD,Set your login password
-VERBOSE,Print sensitive data in the terminal (y/n)
 SAVE_ENV,Save enviroment variables for next future executions (y/n)
