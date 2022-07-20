@@ -36,8 +36,9 @@ Run-time             |  Logs
 
 | Command Line Option | Description |
 |  :---  |  :---:  |
-|-c --continuous| Continuously run the script each 24 hours |
-|-v --verbose| Increase verbose levels: <br/>0. No verbosity (default) <br/>1. Prints & logs more debug messages <br/>2. Account details included (email & password) |
+|-h --help | Show help message and exit |
+|-c --continuous| Continuously run the script every 24 hours |
+|-l log_level --log-level log_level| Log level options: ['DEBUGV', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
 
 
 ## Enviroment variables (optional)
