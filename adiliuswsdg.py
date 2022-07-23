@@ -110,7 +110,7 @@ def run_script(username: str, password: str):
         
     if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
         logging.debug("Supply drop avaliable.")
-        
+
     if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
         for _ in range(weekly_avaliable):
             http_handler.weekly_supply_drop_request(session, user_id)
@@ -131,15 +131,6 @@ def main():
         description="Automatically grab Webhallen supply drops using HTTP requests.",
         formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument(
-        "-c",
-        "--continuous",
-        action="store_true",
-        default=False,
-        required=False, 
-        help=f"Run script in background and continuously grab drops every 24 hours",
-        dest="continuous"
-    )
     log_levels = ['DEBUGV', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
     parser.add_argument(
         "-l",
@@ -154,9 +145,6 @@ def main():
         dest="log_level"
     )
     args = parser.parse_args()
-
-    # Get continuous variable
-    continuous = args.continuous
 
     # Get log level variable
     log_level = (args.log_level).upper()
@@ -181,28 +169,6 @@ def main():
 
     # Run script
     run_script(webhallen_username, webhallen_password)
-
-    # Continiously running the program
-    if continuous:
-
-        time_until_repeat = 86400
-        timer = 0
-
-        while True:
-            seconds_left = time_until_repeat-timer
-            time_left = datetime.utcfromtimestamp(seconds_left).strftime("%H:%M:%S")
-            print(f"Continuously running script: {time_left} seconds until next run",end="\r")
-
-            # 24 hours has passed
-            if timer == time_until_repeat:
-                run_script(webhallen_username, webhallen_password)
-                timer = 0
-
-            # Sleep 1 second
-            time.sleep(1)
-
-            # Increment timer
-            timer += 1
 
     # Exit
     logging.debug("AdiliusWSDG exiting.")

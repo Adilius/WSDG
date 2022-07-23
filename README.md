@@ -36,7 +36,6 @@ Run-time             |  Logs
 
 | Command Line Option | Description |
 |  :---  |  :---:  |
-|-c --continuous| Continuously run the script each 24 hours |
 |-v --verbose| Increase verbose levels: <br/>0. No verbosity (default) <br/>1. Prints & logs more debug messages <br/>2. Account details included (email & password) |
 
 
