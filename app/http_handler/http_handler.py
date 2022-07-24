@@ -5,9 +5,6 @@ import json
 import sys
 import logging
 
-from ..logging_handler import logging_handler
-from ..enviroment_handler import enviroment_handler
-
 API_BASE_URL = "https://www.webhallen.com/api/"
 LOGIN_URL = "https://www.webhallen.com/api/login/"
 SUPPLY_DROP_URL = "https://www.webhallen.com/api/supply-drop/"
@@ -28,7 +25,7 @@ def login_request(session, webhallen_username: str, webhallen_password: str):
 
     response = session.post(url=LOGIN_URL, headers=headers, data=body)
     if response.status_code == 403:
-        logging.critical(f"Login critical fail. Status code: {response.status_code}")
+        logging.critical(f"Login failed. Status code: {response.status_code}")
         logging.critical(f"Possibly wrongly set username and password. Exiting program...")
         sys.exit()
 
@@ -95,7 +92,6 @@ def weekly_supply_drop_request(session, webhallen_user_id: str):
         logging.info(f"Grabbed weekly drop. But failed to parse response text. Saving response for debugging")
         logging.info(response)
         logging.info(response.text)
-
 
 def activity_supply_drop_request(session, webhallen_user_id: str):
     """

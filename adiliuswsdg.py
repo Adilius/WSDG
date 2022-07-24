@@ -17,29 +17,11 @@ from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
 from app.http_handler import http_handler
 
-BASE_API_URL = "https://www.webhallen.com/api/"
-CONTINIOUS_GRAB_TIME = "00:10"
-
-
-def get_drop_time(airplane_time: float):
-    """
-    Params: Airplane unix time from supply drop response
-    Returns: days, hours, minutes, seconds until next drop using Weekly Supply Drop epoch time
-    """
-    current_time = round(time.time())
-    time_difference = int(airplane_time - current_time)
-    days = time_difference // 86400
-    hours = (time_difference - days * 86400) // 3600
-    minutes = (time_difference - days * 86400 - hours * 3600) // 60
-    seconds = time_difference - days * 86400 - hours * 3600 - minutes * 60
-    return days, hours, minutes, seconds
-
 def grab_user_id(session):
     """
     Params: Session after login success
     Returns: Webhallen User ID
     """
-    verbose = EnvHandler.get_variable("VERBOSE")
     logging.debug("Grabbing Webhallen User ID from cookies")
     try:
         webhallen_auth_token = session.cookies["webhallen_auth"]
@@ -51,19 +33,40 @@ def grab_user_id(session):
         logging.debugv("Webhallen User ID: " + str(webhallen_user_id["user_id"]))
     return webhallen_user_id
 
+def get_drop_time(response_dict):
+    """
+    Params: Airplane unix time from supply drop response
+    Returns: days, hours, minutes, seconds until next drop using Weekly Supply Drop epoch time
+    """
+    airplane_time= response_dict["nextDropTime"]
+    current_time = round(time.time())
+    time_difference = int(airplane_time - current_time)
+    days = time_difference // 86400
+    hours = (time_difference - days * 86400) // 3600
+    minutes = (time_difference - days * 86400 - hours * 3600) // 60
+    seconds = time_difference - days * 86400 - hours * 3600 - minutes * 60
+    return days, hours, minutes, seconds
+
+def get_supply_drop_status_creates(response_dict):
+    """
+    Params: Response from supply drop request in dict
+    Returns: Number of creates avaliable for weekly, activity, and levelup
+    """
+    weekly_avaliable, activity_avaliable, levelup_avaliable = 0, 0, 0
+    weekly_avaliable = int(response_dict["crateTypes"][0]["openableCount"])
+    activity_avaliable = int(response_dict["crateTypes"][1]["openableCount"])
+    levelup_avaliable = int(response_dict["crateTypes"][2]["openableCount"])
+    return weekly_avaliable, activity_avaliable, levelup_avaliable
+
 def print_supply_drop_status(response_supply_text):
     """
     Params: Response from supply drop request
     Prints all supply drop status
     """
-    response_json = json.loads(response_supply_text)
-    days, hours, minutes, seconds = get_drop_time(response_json["nextDropTime"])
+    response_dict = json.loads(response_supply_text)
+    weekly_avaliable, activity_avaliable, levelup_avaliable = get_supply_drop_status_creates(response_dict)
+    days, hours, minutes, seconds = get_drop_time(response_dict)
 
-    weekly_avaliable, activity_avaliable, levelup_avaliable = 0, 0, 0
-
-    weekly_avaliable = int(response_json["crateTypes"][0]["openableCount"])
-    activity_avaliable = int(response_json["crateTypes"][1]["openableCount"])
-    levelup_avaliable = int(response_json["crateTypes"][2]["openableCount"])
 
     logging.debug(f"""
 ------ SUPPLY DROP STATUS ------
@@ -76,11 +79,12 @@ Weekly drop avaliable: {str(weekly_avaliable)}
 ((str(seconds) + " seconds") if seconds > 0 else ""))
 if days + hours + minutes + seconds > 1 else ""}
 Activity drop avaliable: {str(activity_avaliable)}
-Activity drop in: {str(response_json["crateTypes"][1]["nextResupplyIn"])} orders
+Activity drop in: {str(response_dict["crateTypes"][1]["nextResupplyIn"])} orders
 Level up drop avaliable: {str(levelup_avaliable)}
-Level up drop progress: {str(response_json["crateTypes"][2]["progress"])[2:4]}%
+Level up drop progress: {str(response_dict["crateTypes"][2]["progress"])[2:4]}%
 --------------------------------""")
     return weekly_avaliable, activity_avaliable, levelup_avaliable
+    
 
 def run_script(username: str, password: str):
     """
@@ -101,25 +105,21 @@ def run_script(username: str, password: str):
     # Supply drop status success. Get correct amount of supplies avaliable.
     if supply_drop_status_sucess:
         weekly_avaliable, activity_avaliable, levelup_avaliable = print_supply_drop_status(supply_drop_status_response.text)    
-    # Supply drop status failure. Try to get all supply drops blindly.
-    else:
-        weekly_avaliable = weekly_avaliable + 1
-        activity_avaliable = activity_avaliable + 1
-        levelup_avaliable = levelup_avaliable + 1
 
-        
-    if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
-        logging.debug("Supply drop avaliable.")
+        if weekly_avaliable >= 1:
+            for _ in range(weekly_avaliable):
+                http_handler.weekly_supply_drop_request(session, user_id)
 
-    if weekly_avaliable + activity_avaliable + levelup_avaliable >= 1:
-        for _ in range(weekly_avaliable):
-            http_handler.weekly_supply_drop_request(session, user_id)
-        for _ in range(activity_avaliable):
-            http_handler.activity_supply_drop_request(session, user_id)
-        for _ in range(levelup_avaliable):
-            http_handler.levelup_supply_drop_request(session, user_id)
-    else:
-        logging.debug("No supply drop avaliable.")
+        if activity_avaliable >= 1:
+            for _ in range(activity_avaliable):
+                http_handler.activity_supply_drop_request(session, user_id)
+
+        if levelup_avaliable >= 1:
+            for _ in range(levelup_avaliable):
+                http_handler.levelup_supply_drop_request(session, user_id)
+
+        if weekly_avaliable + activity_avaliable + levelup_avaliable == 0:
+            logging.debug("No supply drop avaliable.")
 
 def main():
     """
