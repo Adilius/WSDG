@@ -37,13 +37,12 @@ Run-time             |  Logs
 | Command Line Option | Description |
 |  :---  |  :---:  |
 |-h --help | Show help message and exit |
-|-c --continuous| Continuously run the script every 24 hours |
 |-l log_level --log-level log_level| Log level options: ['DEBUGV', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
 
 
-## Enviroment variables (optional)
+## Enviroment variables
 
-At first run, or if enviroment file is missing/corrupt. You will be prompted for variables to run the script.
+At first run, or if enviroment file is missing/corrupt. You will be prompted for variables to run the script. 
 | Variable name | Value | Description |
 | :---         |     :---:      |         :---  |
 |WEBHALLEN_USERNAME| example_email     | Set your login email    |
@@ -52,20 +51,17 @@ At first run, or if enviroment file is missing/corrupt. You will be prompted for
 
 ## Setting up scheduled task
 TODO
-Cron in linux, scheduler in windows
-
-## Run continiously
-The script can be setup to run in the background as a continuous process.
+Cron in linux
 
 ### Windows
-1. Run script to initialize variables: `python .\adiliuswsdg.py`
-2. Create a new minimized command prompt: `cmd.exe /c start /min python .\adiliuswsdg.py -c`
-
-### Linux
-1. Run script to initialize variables: `python3 .\adiliuswsdg.py`
-2. Start a new "no hang up" process in the background: `nohup python3 adiliuswsdg.py -c &`
-
-Killing the process can easily be done by using: `pkill -9 -f adiliuswsdg`
+Copy paste to notepad. Edit paths in $action. Execute should path to either your global Python or to the virtual enviroment Python. Argument should path to adiliuswsdg.py file.
+```
+$action = New-ScheduledTaskAction -Execute "path\to\python.exe" -Argument "path\to\AdiliusWSDG\adiliugswsdg.py"
+$trigger = New-ScheduledTaskTrigger -Daily -At 5:00am
+$trigger.StartBoundary = [DateTime]::Parse($trigger.StartBoundary).ToLocalTime().ToString("s")
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0
+Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -TaskName "AdiliusWSDG" -Description "Run AdiliusWSDG script daily"
+```
 
 ## Contributing
 
