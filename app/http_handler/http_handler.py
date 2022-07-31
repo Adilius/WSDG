@@ -26,7 +26,9 @@ def login_request(session, webhallen_username: str, webhallen_password: str):
     response = session.post(url=LOGIN_URL, headers=headers, data=body)
     if response.status_code == 403:
         logging.critical(f"Login failed. Status code: {response.status_code}")
-        logging.critical(f"Possibly wrongly set username and password. Exiting program...")
+        logging.critical(
+            f"Possibly wrongly set username and password. Exiting program..."
+        )
         sys.exit()
 
     if response.status_code != 200:
@@ -37,6 +39,7 @@ def login_request(session, webhallen_username: str, webhallen_password: str):
     # Response code 200
     logging.debug("Login success!")
     return response
+
 
 def supply_drop_request(session):
     """
@@ -55,6 +58,7 @@ def supply_drop_request(session):
     # Response code 200
     logging.debug("Supply drop status success!")
     return True, response
+
 
 def weekly_supply_drop_request(session, webhallen_user_id: str):
     """
@@ -78,7 +82,9 @@ def weekly_supply_drop_request(session, webhallen_user_id: str):
 
     # Handle bad response
     if response.status_code != 200:
-        logging.error(f"Error grabbing weekly supply drop. Status code: {response.status_code}")
+        logging.error(
+            f"Error grabbing weekly supply drop. Status code: {response.status_code}"
+        )
         return
 
     # Handle good response
@@ -89,9 +95,12 @@ def weekly_supply_drop_request(session, webhallen_user_id: str):
             description = drop["description"]
             logging.info(f"Grabbed weekly drop {name} and got {description}")
     except:
-        logging.info(f"Grabbed weekly drop. But failed to parse response text. Saving response for debugging")
+        logging.info(
+            f"Grabbed weekly drop. But failed to parse response text. Saving response for debugging"
+        )
         logging.info(response)
         logging.info(response.text)
+
 
 def activity_supply_drop_request(session, webhallen_user_id: str):
     """
@@ -105,7 +114,7 @@ def activity_supply_drop_request(session, webhallen_user_id: str):
         "origin": "https://www.webhallen.com",
         "referer": "https://www.webhallen.com/se/member/"
         + str(webhallen_user_id)
-        + "/supply-drop"
+        + "/supply-drop",
     }
     data = '{"crateType":"activity"}'
     logging.debug("Sending request to grab activity supply drop...")
@@ -118,7 +127,9 @@ def activity_supply_drop_request(session, webhallen_user_id: str):
 
     # Handle bad response
     if response.status_code != 200:
-        logging.error(f"Error grabbing activity supply drop. Status code: {response.status_code}")
+        logging.error(
+            f"Error grabbing activity supply drop. Status code: {response.status_code}"
+        )
         return response
 
     # Handle good response
@@ -129,9 +140,12 @@ def activity_supply_drop_request(session, webhallen_user_id: str):
             description = drop["description"]
             logging.info(f"Grabbed activity drop {name} and got {description}")
     except:
-        logging.info(f"Grabbed activity drop. But failed to parse response text. Saving response for debugging")
+        logging.info(
+            f"Grabbed activity drop. But failed to parse response text. Saving response for debugging"
+        )
         logging.info(response)
         logging.info(response.text)
+
 
 def levelup_supply_drop_request(session, webhallen_user_id: str):
     """
@@ -161,7 +175,9 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
 
     # Handle bad response
     if response.status_code != 200:
-        logging.error(f"Error grabbing level up supply drop. Status code: {response.status_code}")
+        logging.error(
+            f"Error grabbing level up supply drop. Status code: {response.status_code}"
+        )
         return
 
     # Handle good response
@@ -174,6 +190,8 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
             logging.info(f"Grabbed level up drop {name} and got {description}")
     except:
         # Response parsing failed
-        logging.info(f"Grabbed level up drop. But failed to parse response text. Saving response for debugging")
+        logging.info(
+            f"Grabbed level up drop. But failed to parse response text. Saving response for debugging"
+        )
         logging.info(response)
         logging.info(response.text)

@@ -1,21 +1,24 @@
 """
 Main module to run program
 """
-from calendar import week
 import json
 import sys
 import time
 import urllib.parse
 from datetime import datetime
 import argparse
-import requests
 import logging
 import os
 from pathlib import Path
+import requests
+
+
+
 
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
 from app.http_handler import http_handler
+
 
 def grab_user_id(session):
     """
@@ -33,12 +36,13 @@ def grab_user_id(session):
         logging.debugv("Webhallen User ID: " + str(webhallen_user_id["user_id"]))
     return webhallen_user_id
 
+
 def get_drop_time(response_dict):
     """
     Params: Airplane unix time from supply drop response
     Returns: days, hours, minutes, seconds until next drop using Weekly Supply Drop epoch time
     """
-    airplane_time= response_dict["nextDropTime"]
+    airplane_time = response_dict["nextDropTime"]
     current_time = round(time.time())
     time_difference = int(airplane_time - current_time)
     days = time_difference // 86400
@@ -46,6 +50,7 @@ def get_drop_time(response_dict):
     minutes = (time_difference - days * 86400 - hours * 3600) // 60
     seconds = time_difference - days * 86400 - hours * 3600 - minutes * 60
     return days, hours, minutes, seconds
+
 
 def get_supply_drop_status_creates(response_dict):
     """
@@ -58,33 +63,36 @@ def get_supply_drop_status_creates(response_dict):
     levelup_avaliable = int(response_dict["crateTypes"][2]["openableCount"])
     return weekly_avaliable, activity_avaliable, levelup_avaliable
 
+
 def print_supply_drop_status(response_supply_text):
     """
     Params: Response from supply drop request
     Prints all supply drop status
     """
     response_dict = json.loads(response_supply_text)
-    weekly_avaliable, activity_avaliable, levelup_avaliable = get_supply_drop_status_creates(response_dict)
-    days, hours, minutes, seconds = get_drop_time(response_dict)
+    (
+        weekly_avaliable,
+        activity_avaliable,
+        levelup_avaliable,
+    ) = get_supply_drop_status_creates(response_dict)
+    days, hours, minutes, seconds = map(str, get_drop_time(response_dict))
+    activity_drop_counter = str(response_dict["crateTypes"][1]["nextResupplyIn"])
+    level_up_progress = str(response_dict["crateTypes"][2]["progress"])[2:4]
 
-
-    logging.debug(f"""
+    logging.debug(
+        f"""
 ------ SUPPLY DROP STATUS ------
 {datetime.now().strftime("Time: %Y-%m-%d %H:%M:%S")}
-Weekly drop avaliable: {str(weekly_avaliable)}
-{("Weekly drop time left: " +
-((str(days) + " days") if days > 0 else "") +
-((str(hours) + " hours ") if hours > 0 else "") +
-((str(minutes) + " minutes ") if minutes > 0 else "") +
-((str(seconds) + " seconds") if seconds > 0 else ""))
-if days + hours + minutes + seconds > 1 else ""}
-Activity drop avaliable: {str(activity_avaliable)}
-Activity drop in: {str(response_dict["crateTypes"][1]["nextResupplyIn"])} orders
-Level up drop avaliable: {str(levelup_avaliable)}
-Level up drop progress: {str(response_dict["crateTypes"][2]["progress"])[2:4]}%
---------------------------------""")
+Weekly drop avaliable: {weekly_avaliable}
+"Weekly drop time left: {days} days | {hours} hours | {minutes} minutes | {seconds} seconds
+Activity drop avaliable: {activity_avaliable}
+Activity drop in: {activity_drop_counter} orders
+Level up drop avaliable: {levelup_avaliable}
+Level up drop progress: {level_up_progress}%
+--------------------------------"""
+    )
     return weekly_avaliable, activity_avaliable, levelup_avaliable
-    
+
 
 def run_script(username: str, password: str):
     """
@@ -100,11 +108,18 @@ def run_script(username: str, password: str):
     user_id = grab_user_id(session)
 
     # Call API to get supply drop status
-    supply_drop_status_sucess, supply_drop_status_response = http_handler.supply_drop_request(session)
+    (
+        supply_drop_status_sucess,
+        supply_drop_status_response,
+    ) = http_handler.supply_drop_request(session)
 
     # Supply drop status success. Get correct amount of supplies avaliable.
     if supply_drop_status_sucess:
-        weekly_avaliable, activity_avaliable, levelup_avaliable = print_supply_drop_status(supply_drop_status_response.text)    
+        (
+            weekly_avaliable,
+            activity_avaliable,
+            levelup_avaliable,
+        ) = print_supply_drop_status(supply_drop_status_response.text)
 
         if weekly_avaliable >= 1:
             for _ in range(weekly_avaliable):
@@ -119,7 +134,8 @@ def run_script(username: str, password: str):
                 http_handler.levelup_supply_drop_request(session, user_id)
 
         if weekly_avaliable + activity_avaliable + levelup_avaliable == 0:
-            logging.debug("No supply drop avaliable.")
+            logging.info("No supply drop avaliable.")
+
 
 def main():
     """
@@ -129,20 +145,22 @@ def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Automatically grab Webhallen supply drops using HTTP requests.",
-        formatter_class=argparse.RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter,
     )
-    log_levels = ['DEBUGV', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    log_levels = ["DEBUGV", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     parser.add_argument(
         "-l",
         "--log-level",
         action="store",
-        default='INFO',
+        default="INFO",
         required=False,
         type=str,
         choices=log_levels,
-        help=f"Log level options: {log_levels}\nDEBUG and below level logs will only be printed in console.\nDEBUGV also prints username, password, and userid.",
+        help=f"""Log level options: {log_levels}\n
+        DEBUG and below level logs will only be printed in console.\n
+        DEBUGV also prints username, password, and userid.""",
         metavar="<log level>",
-        dest="log_level"
+        dest="log_level",
     )
     args = parser.parse_args()
 
@@ -150,18 +168,20 @@ def main():
     log_level = (args.log_level).upper()
 
     # Setup logging
-    filename = os.path.join(Path(__file__).parent, 'adiliuswsdg.log')   # Get path to log file
-    if (not logging_handler.setup_logging(logfile_file=filename, log_level=log_level)):
+    filename = os.path.join(
+        Path(__file__).parent, "adiliuswsdg.log"
+    )  # Get path to log file
+    if not logging_handler.setup_logging(logfile_file=filename, log_level=log_level):
         print("Failed to setup logging.")
-       
+
     # Log some messages
-    #logging.debugv("Debugv message")
-    #logging.debug("Debug message")
-    #logging.info("Info message")
-    #logging.warning("Warning message")
-    #logging.error("Error message")
-    #logging.critical("Critical message")
-    #logging.debug('AdiliusWSDG starting.')
+    # logging.debugv("Debugv message")
+    # logging.debug("Debug message")
+    # logging.info("Info message")
+    # logging.warning("Warning message")
+    # logging.error("Error message")
+    # logging.critical("Critical message")
+    # logging.debug('AdiliusWSDG starting.')
 
     # Get login variables
     webhallen_username = EnvHandler.get_variable("WEBHALLEN_USERNAME")

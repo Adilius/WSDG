@@ -34,7 +34,6 @@ class EnvHandler:
         # Get or Create enviroment file
         self.init()
 
-
     def init(self):
         """
         Initialize enviroment handler class
@@ -74,10 +73,7 @@ class EnvHandler:
 
         # Open file and read contents
         with open(
-            file=os.path.join(
-                self.module_path,
-                self.enviroment_variables_name
-            ),
+            file=os.path.join(self.module_path, self.enviroment_variables_name),
             mode="r",
             encoding="utf-8",
         ) as env_file_name:
@@ -142,7 +138,9 @@ class EnvHandler:
                     self.variables = json.loads(plaintext)
                 except:
                     loghandler = logging_handler.LogHandler()
-                    loghandler.print_log("Failed to read enviroment file! Try deleting file and re-create it. Exiting program...")
+                    loghandler.print_log(
+                        "Failed to read enviroment file! Try deleting file and re-create it. Exiting program..."
+                    )
                     sys.exit(1)
 
     def write_env_contents(self):
