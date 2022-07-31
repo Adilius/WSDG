@@ -47,8 +47,14 @@ At first run, or if enviroment file is missing/corrupt. You will be prompted for
 | SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
 
 ## Setting up scheduled task
-TODO
-Cron in linux
+
+### Linux
+To setup scheduled task in linux simply use crontab jobs.
+To edit cronjobs: `crontab -e`
+Change paths as needed.
+```
+00 05 * * * cd /path/to/AdiliusWSDG && /usr/bin/python3 adiliuswsdg.py
+```
 
 ### Windows
 Copy paste to notepad. Edit paths in $action. Execute should path to either your global Python or to the virtual enviroment Python you use for the project. Argument should path to adiliuswsdg.py file.
