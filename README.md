@@ -6,10 +6,9 @@
  
 # AdiliusWSDG: Automate your webhallen experience with Python!
 
-AdiliusWSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.
-Its goal is to enchance the Webhallen experience for the tech enthusiast.
-With an easy one-time setup never again miss a supply drop.
-More features to come!
+AdiliusWSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.  
+The goal is to enchance the Webhallen experience for the tech enthusiast.
+With an easy one-time setup never again miss a supply drop.  
 
 ![Python version](https://img.shields.io/badge/python-v3.9.6-blue)
 
@@ -49,15 +48,18 @@ At first run, or if enviroment file is missing/corrupt. You will be prompted for
 ## Setting up scheduled task
 
 ### Linux
-To setup scheduled task in linux simply use crontab jobs.
-To edit cronjobs: `crontab -e`
+To setup scheduled task in linux simply use crontab jobs.  
+To edit cronjobs: `crontab -e`  
 Change paths as needed.
 ```
 00 05 * * * cd /path/to/AdiliusWSDG && /usr/bin/python3 adiliuswsdg.py
 ```
 
 ### Windows
-Copy paste to notepad. Edit paths in $action. Execute should path to either your global Python or to the virtual enviroment Python you use for the project. Argument should path to adiliuswsdg.py file.
+Copy paste to notepad.  
+Edit paths in $action.  
+Execute should path to either your global Python or to the virtual enviroment Python you use for the project.  
+Argument should path to adiliuswsdg.py file.
 ```
 $action = New-ScheduledTaskAction -Execute "path\to\python.exe" -Argument "path\to\AdiliusWSDG\adiliuswsdg.py"
 $trigger = New-ScheduledTaskTrigger -Daily -At 5:00am
@@ -68,8 +70,7 @@ Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -Ta
 
 ## Contributing
 
-If you experiance any problems running the script, make an issue.
-
+If you experiance any problems running the script, make an issue.  
 If you want to contribute, make a pull request.
 
 ## Acknowledgment
