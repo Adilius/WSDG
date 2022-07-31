@@ -20,9 +20,6 @@ Run-time             |  Logs
 
 
 
-
-
-
 ## Quick start
 1. Clone repository: `git clone https://github.com/Adilius/AdiliusWSDG.git`
 
@@ -54,9 +51,9 @@ TODO
 Cron in linux
 
 ### Windows
-Copy paste to notepad. Edit paths in $action. Execute should path to either your global Python or to the virtual enviroment Python. Argument should path to adiliuswsdg.py file.
+Copy paste to notepad. Edit paths in $action. Execute should path to either your global Python or to the virtual enviroment Python you use for the project. Argument should path to adiliuswsdg.py file.
 ```
-$action = New-ScheduledTaskAction -Execute "path\to\python.exe" -Argument "path\to\AdiliusWSDG\adiliugswsdg.py"
+$action = New-ScheduledTaskAction -Execute "path\to\python.exe" -Argument "path\to\AdiliusWSDG\adiliuswsdg.py"
 $trigger = New-ScheduledTaskTrigger -Daily -At 5:00am
 $trigger.StartBoundary = [DateTime]::Parse($trigger.StartBoundary).ToLocalTime().ToString("s")
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0

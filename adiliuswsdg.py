@@ -12,9 +12,6 @@ import os
 from pathlib import Path
 import requests
 
-
-
-
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
 from app.http_handler import http_handler
@@ -73,7 +70,7 @@ def print_supply_drop_status(response_supply_text):
     (
         weekly_avaliable,
         activity_avaliable,
-        levelup_avaliable,
+        levelup_avaliable
     ) = get_supply_drop_status_creates(response_dict)
     days, hours, minutes, seconds = map(str, get_drop_time(response_dict))
     activity_drop_counter = str(response_dict["crateTypes"][1]["nextResupplyIn"])
@@ -175,7 +172,7 @@ def main():
         print("Failed to setup logging.")
 
     # Log some messages
-    # logging.debugv("Debugv message")
+    logging.debugv("Debugv message")
     # logging.debug("Debug message")
     # logging.info("Info message")
     # logging.warning("Warning message")
