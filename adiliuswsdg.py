@@ -81,7 +81,7 @@ def print_supply_drop_status(response_supply_text):
 ------ SUPPLY DROP STATUS ------
 {datetime.now().strftime("Time: %Y-%m-%d %H:%M:%S")}
 Weekly drop avaliable: {weekly_avaliable}
-"Weekly drop time left: {days} days | {hours} hours | {minutes} minutes | {seconds} seconds
+Weekly drop time left: {days} days | {hours} hours | {minutes} minutes | {seconds} seconds
 Activity drop avaliable: {activity_avaliable}
 Activity drop in: {activity_drop_counter} orders
 Level up drop avaliable: {levelup_avaliable}
@@ -134,10 +134,10 @@ def run_script(username: str, password: str):
             logging.info("No supply drop avaliable.")
 
 
-def main():
-    """
-    Initialize start up settings
-    """
+if __name__ == "__main__":
+
+    # Start enviroment handler globally
+    EnvHandler = enviroment_handler.EnvHandler()
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
@@ -171,8 +171,8 @@ def main():
     if not logging_handler.setup_logging(logfile_file=filename, log_level=log_level):
         print("Failed to setup logging.")
 
-    # Log some messages
-    logging.debugv("Debugv message")
+    ### Log some messages
+    # logging.debugv("Debugv message")
     # logging.debug("Debug message")
     # logging.info("Info message")
     # logging.warning("Warning message")
@@ -189,13 +189,4 @@ def main():
 
     # Exit
     logging.debug("AdiliusWSDG exiting.")
-    sys.exit(1)
-
-
-# Run start up script
-if __name__ == "__main__":
-
-    # Start enviroment handler globally
-    EnvHandler = enviroment_handler.EnvHandler()
-
-    main()
+    sys.exit(0)

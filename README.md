@@ -34,7 +34,7 @@ Run-time             |  Logs
 | Command Line Option | Description |
 |  :---  |  :---:  |
 |-h --help | Show help message and exit |
-|-l log_level --log-level log_level| Log level options: ['DEBUGV', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
+|-l log_level --log-level log_level| Log level options: [DEBUGV, DEBUG, INFO, WARNING, ERROR, CRITICAL] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
 
 
 ## Enviroment variables

@@ -67,39 +67,14 @@ def weekly_supply_drop_request(session, webhallen_user_id: str):
     Sends request to collect weekly supply drop
     """
     headers = {
-        "referer": "https://www.webhallen.com/se/member/"
-        + str(webhallen_user_id)
-        + "/supply-drop"
+        "referer": "https://www.webhallen.com/se/member/" + str(webhallen_user_id) + "/supply-drop"
     }
 
     logging.debug("Sending request to grab weekly supply drop...")
     response = session.post(url=SUPPLY_DROP_URL, headers=headers)
 
-    # Handle no supply drop
-    if response.status_code == 403:
-        logging.debug(f"No weekly supply drop. Status code: {response.status_code}")
-        return
-
-    # Handle bad response
-    if response.status_code != 200:
-        logging.error(
-            f"Error grabbing weekly supply drop. Status code: {response.status_code}"
-        )
-        return
-
-    # Handle good response
-    try:
-        response_json = json.loads(response.text)
-        for drop in response_json["drops"]:
-            name = drop["name"]
-            description = drop["description"]
-            logging.info(f"Grabbed weekly drop {name} and got {description}")
-    except:
-        logging.info(
-            f"Grabbed weekly drop. But failed to parse response text. Saving response for debugging"
-        )
-        logging.info(response)
-        logging.info(response.text)
+    log_handle_response(response, "weekly")
+    return response
 
 
 def activity_supply_drop_request(session, webhallen_user_id: str):
@@ -120,31 +95,8 @@ def activity_supply_drop_request(session, webhallen_user_id: str):
     logging.debug("Sending request to grab activity supply drop...")
     response = session.post(url=url, headers=headers, data=data)
 
-    # Handle no activity drop
-    if response.status_code == 403:
-        logging.debug(f"No activity supply drop. Status code: {response.status_code}")
-        return response
-
-    # Handle bad response
-    if response.status_code != 200:
-        logging.error(
-            f"Error grabbing activity supply drop. Status code: {response.status_code}"
-        )
-        return response
-
-    # Handle good response
-    try:
-        response_json = json.loads(response.text)
-        for drop in response_json["drops"]:
-            name = drop["name"]
-            description = drop["description"]
-            logging.info(f"Grabbed activity drop {name} and got {description}")
-    except:
-        logging.info(
-            f"Grabbed activity drop. But failed to parse response text. Saving response for debugging"
-        )
-        logging.info(response)
-        logging.info(response.text)
+    log_handle_response(response, "activity")
+    return response
 
 
 def levelup_supply_drop_request(session, webhallen_user_id: str):
@@ -175,16 +127,24 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
     logging.debug("Sending request to grab level up supply drop...")
     response = session.post(url=url, headers=headers, data=data)
 
-    # Handle no activity drop
+    log_handle_response(response, "level up")
+    return response
+
+def log_handle_response(response, supply_drop_type: str):
+    """
+    Params: Response object
+    Params: Supply drop type
+    Logs response according to status code and supply drop type
+    """
+
+    # Handle no supply drop
     if response.status_code == 403:
-        logging.debug(f"No level up supply drop. Status code: {response.status_code}")
+        logging.debug(f"No {supply_drop_type} supply drop. Status code: {response.status_code}")
         return response
 
     # Handle bad response
     if response.status_code != 200:
-        logging.error(
-            f"Error grabbing level up supply drop. Status code: {response.status_code}"
-        )
+        logging.error(f"Error grabbing {supply_drop_type} supply drop. Status code: {response.status_code}")
         return response
 
     # Handle good response
@@ -194,11 +154,10 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
         for drop in response_json["drops"]:
             name = drop["name"]
             description = drop["description"]
-            logging.info(f"Grabbed level up drop {name}{' ' if description == '' else f' and got {description}'}")
+            logging.info(f"Grabbed {supply_drop_type} supply drop {name}{' ' if description == '' else f' and got {description}'}")
     except:
         # Response parsing failed
-        logging.info(
-            f"Grabbed level up drop. But failed to parse response text. Saving response for debugging"
-        )
+        logging.info(f"Grabbed {supply_drop_type} supply drop. But failed to parse response text. Logging response for debugging")
         logging.info(response)
         logging.info(response.text)
+    return response
