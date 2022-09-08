@@ -149,7 +149,7 @@ def activity_supply_drop_request(session, webhallen_user_id: str):
 
 def levelup_supply_drop_request(session, webhallen_user_id: str):
     """
-    EXPERIMENTAL, needs configuration!
+    Working state, HTTP parameters needs configuration!
     Params: Session after login success
     Params: Webhallen User ID
     Sends request to collect level up supply drop
@@ -158,10 +158,17 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
     url = "https://www.webhallen.com/api/supply-drop"
     headers = {
         "authority": "www.webhallen.com",
+        'sec-ch-ua': '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',    # Possibly redundant
         "origin": "https://www.webhallen.com",
-        "referer": "https://www.webhallen.com/se/member/"
-        + str(webhallen_user_id)
-        + "/supply-drop",
+        'dnt': '1',                                                                         # Possibly redundant
+        'sec-ch-ua-mobile': '?0',                                                           # Possibly redundant
+        'sec-fetch-site': 'same-origin',                                                    # Possibly redundant
+        'sec-fetch-mode': 'cors',                                                           # Possibly redundant
+        'sec-fetch-dest': 'empty',                                                          # Possibly redundant
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',    # Possibly neccesary
+        'content-type': 'application/json',                                                                                                     # Possibly neccesary
+        'accept': '*/*',                                                                                                                        # Possibly neccesary
+        "referer": "https://www.webhallen.com/se/member/" + str(webhallen_user_id) + "/supply-drop",
     }
     data = '{"crateType":"level-up"}'
 
@@ -178,7 +185,7 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
         logging.error(
             f"Error grabbing level up supply drop. Status code: {response.status_code}"
         )
-        return
+        return response
 
     # Handle good response
     try:
@@ -187,7 +194,7 @@ def levelup_supply_drop_request(session, webhallen_user_id: str):
         for drop in response_json["drops"]:
             name = drop["name"]
             description = drop["description"]
-            logging.info(f"Grabbed level up drop {name} and got {description}")
+            logging.info(f"Grabbed level up drop {name}{' ' if description == '' else f' and got {description}'}")
     except:
         # Response parsing failed
         logging.info(
