@@ -10,3 +10,13 @@ def debugv(msg, *args, **kwargs):
 logging.addLevelName(9, "DEBUGV")
 logging.debugv = debugv
 logging.Logger.debugv = debugv
+
+
+### Log usage examples
+# logging.debugv("Debugv message")
+# logging.debug("Debug message")
+# logging.info("Info message")
+# logging.warning("Warning message")
+# logging.error("Error message")
+# logging.critical("Critical message")
+# logging.debug('AdiliusWSDG starting.')

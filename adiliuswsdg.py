@@ -4,7 +4,7 @@ Main module to run program
 import json
 import sys
 import time
-import urllib.parse
+
 from datetime import datetime
 import argparse
 import logging
@@ -15,23 +15,6 @@ import requests
 from app.enviroment_handler import enviroment_handler
 from app.logging_handler import logging_handler
 from app.http_handler import http_handler
-
-
-def grab_user_id(session):
-    """
-    Params: Session after login success
-    Returns: Webhallen User ID
-    """
-    logging.debug("Grabbing Webhallen User ID from cookies")
-    try:
-        webhallen_auth_token = session.cookies["webhallen_auth"]
-        webhallen_user_id = json.loads(urllib.parse.unquote(webhallen_auth_token))
-    except KeyError:
-        logging.debug("Failed to get authentication token! Exiting program")
-        sys.exit(1)
-    else:
-        logging.debugv("Webhallen User ID: " + str(webhallen_user_id["user_id"]))
-    return webhallen_user_id
 
 
 def get_drop_time(response_dict):
@@ -48,7 +31,6 @@ def get_drop_time(response_dict):
     seconds = time_difference - days * 86400 - hours * 3600 - minutes * 60
     return days, hours, minutes, seconds
 
-
 def get_supply_drop_status_creates(response_dict):
     """
     Params: Response from supply drop request in dict
@@ -60,7 +42,6 @@ def get_supply_drop_status_creates(response_dict):
     levelup_avaliable = int(response_dict["crateTypes"][2]["openableCount"])
     return weekly_avaliable, activity_avaliable, levelup_avaliable
 
-
 def print_supply_drop_status(response_supply_text):
     """
     Params: Response from supply drop request
@@ -70,7 +51,7 @@ def print_supply_drop_status(response_supply_text):
     (
         weekly_avaliable,
         activity_avaliable,
-        levelup_avaliable
+        levelup_avaliable,
     ) = get_supply_drop_status_creates(response_dict)
     days, hours, minutes, seconds = map(str, get_drop_time(response_dict))
     activity_drop_counter = str(response_dict["crateTypes"][1]["nextResupplyIn"])
@@ -90,6 +71,9 @@ Level up drop progress: {level_up_progress}%
     )
     return weekly_avaliable, activity_avaliable, levelup_avaliable
 
+def parse_arguments():
+    pass
+
 
 def run_script(username: str, password: str):
     """
@@ -101,8 +85,7 @@ def run_script(username: str, password: str):
     session = requests.Session()
 
     # Login to grab cookie & get user ID for further API requests
-    http_handler.login_request(session, username, password)
-    user_id = grab_user_id(session)
+    response, user_id = http_handler.login_request(session, username, password)
 
     # Call API to get supply drop status
     (
@@ -136,28 +119,50 @@ def run_script(username: str, password: str):
 
 if __name__ == "__main__":
 
-    # Start enviroment handler globally
-    EnvHandler = enviroment_handler.EnvHandler()
-
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Automatically grab Webhallen supply drops using HTTP requests.",
         formatter_class=argparse.RawTextHelpFormatter,
     )
+    parser.add_argument(
+        "-e",
+        action="store",
+        required=False,
+        type=str,
+        help="Email used to login into Webhallen",
+        metavar="<email>",
+        dest="email",
+    )
+    parser.add_argument(
+        "-p",
+        action="store",
+        required=False,
+        type=str,
+        help="Password used to login into Webhallen",
+        metavar="<password>",
+        dest="password",
+    )
     log_levels = ["DEBUGV", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     parser.add_argument(
         "-l",
-        "--log-level",
         action="store",
         default="INFO",
         required=False,
         type=str,
         choices=log_levels,
-        help=f"""Log level options: {log_levels}\n
-        DEBUG and below level logs will only be printed in console.\n
-        DEBUGV also prints username, password, and userid.""",
+        help=f"""Log level options: {log_levels}
+Default value: INFO. DEBUG and below level logs will only be printed in console.
+DEBUGV also prints username, password, and userid.""",
         metavar="<log level>",
         dest="log_level",
+    )
+    parser.add_argument(
+        "-s",
+        action="store",
+        required=False,
+        type=bool,
+        help="Save and encrypt login credentials for future use. (Read README)",
+        dest="store",
     )
     args = parser.parse_args()
 
@@ -171,18 +176,12 @@ if __name__ == "__main__":
     if not logging_handler.setup_logging(logfile_file=filename, log_level=log_level):
         print("Failed to setup logging.")
 
-    ### Log some messages
-    # logging.debugv("Debugv message")
-    # logging.debug("Debug message")
-    # logging.info("Info message")
-    # logging.warning("Warning message")
-    # logging.error("Error message")
-    # logging.critical("Critical message")
-    # logging.debug('AdiliusWSDG starting.')
+    # Start enviroment handler globally
+    EnvHandler = enviroment_handler.EnvHandler(email = args.email, password = args.password, store = args.store)
 
     # Get login variables
-    webhallen_username = EnvHandler.get_variable("WEBHALLEN_USERNAME")
-    webhallen_password = EnvHandler.get_variable("WEBHALLEN_PASSWORD")
+    webhallen_username = EnvHandler.get_variable("email")
+    webhallen_password = EnvHandler.get_variable("password")
 
     # Run script
     run_script(webhallen_username, webhallen_password)

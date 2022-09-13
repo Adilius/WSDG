@@ -6,50 +6,59 @@ Prompting user, encrypting to file, and reading from file
 import os
 import uuid
 import json
-import getpass
-import sys
-
+import re
+import logging
 from pathlib import Path
-
-from ..logging_handler import logging_handler
 
 # Handles enviroment variables
 class EnvHandler:
     """
     Class to handle enviroment variables
     """
+    def __init__(self, email: str, password: str, store: bool):
+        logging.debug("Initialising enviroment handler...")
 
-    def __init__(self):
-        # Get paths
-        self.module_path = Path(__file__).parents[0]
+        # Get path to root folder
         self.root_path = Path(__file__).parents[2]
-
-        # Enviroment file names
-        self.enviroment_variables_name = ".enviroment_variables"
 
         # Store variables
         self.variables = {}
-        self.key = str(uuid.getnode())  # Get hardware adress as 48-bit positive integer
+        self.key = str(uuid.getnode())      # Get hardware adress as 48-bit positive integer
 
         # Get or Create enviroment file
-        self.init()
+        self.init(email, password, store)
 
-    def init(self):
+    def init(self, email, password, store):
         """
         Initialize enviroment handler class
-
         """
-        if self.is_env_file_presence():
+        # Try to read enviroment file
+        if self.is_enviroment_file_present():
             try:
                 self.read_env_contents()
             except FileNotFoundError:
-                print("Could not find enviroment file. Creating new...")
-                self.prompt_new_env()
-        else:
-            self.prompt_new_env()
+                logging.debug("Could not find enviroment file.")
 
-    # Checks if .env file exists
-    def is_env_file_presence(self):
+        # If command-line option email pass checks, set as new email
+        if email is not None and re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+            logging.debugv(f"Setting new email: {email}")
+            self.variables["email"] = email
+        elif 'email' in self.variables:
+            logging.debugv(f"Retriving stored email: {self.variables['email']}")
+
+        # If command-line option password pass checks, set as new password
+        if password is not None and not len(password) < 8:
+            logging.debugv(f"Setting new password: {password}")
+            self.variables["password"] = password
+        elif 'password' in self.variables:
+            logging.debugv(f"Retriving stored password: {self.variables['password']}")
+
+        # Store email and password
+        if store:
+            logging.debug("Writing enviroment variables.")
+            self.write_enviroment_variables()
+
+    def is_enviroment_file_present(self):
         """
         Returns true if enviroment variable file exists
         """
@@ -58,38 +67,11 @@ class EnvHandler:
             return True
         return False
 
-    # Returns list of variable names and descriptions
-    def getenviroment_variables_list(self):
-        """
-        Returns list of enviroment variables names
-        Returns list of enviroment variables description
-        """
-
-        # List to hold variable names
-        enviroment_variables_names = []
-
-        # List to hold variable descriptions
-        enviroment_variables_description = []
-
-        # Open file and read contents
-        with open(
-            file=os.path.join(self.module_path, self.enviroment_variables_name),
-            mode="r",
-            encoding="utf-8",
-        ) as env_file_name:
-            for line in env_file_name.read().splitlines():
-                name, description = line.split(",")
-                enviroment_variables_names.append(name)
-                enviroment_variables_description.append(description)
-
-        return enviroment_variables_names, enviroment_variables_description
-
     def encode(self, plaintext):
         """
         Returns encoded ciphertext using initialized key
         """
         encoded_chars = []
-
         for index, character in enumerate(plaintext):
             key_c = self.key[index % len(self.key)]
             encoded_c = chr(ord(character) + ord(key_c) % 256)
@@ -101,7 +83,6 @@ class EnvHandler:
         """
         Returns decoded plaintext using initialized key
         """
-
         decoded_chars = []
         for index, character in enumerate(ciphertext):
             key_c = self.key[index % len(self.key)]
@@ -114,8 +95,7 @@ class EnvHandler:
         """
         Returns enviroment variables contents as dictionary
         """
-
-        if self.is_env_file_presence():
+        if self.is_enviroment_file_present():
 
             # Open .env file
             with open(
@@ -124,30 +104,19 @@ class EnvHandler:
                 encoding="utf-8",
             ) as env_file_name:
 
-                # Read ciphertext contents
-                ciphertext = env_file_name.read()
-
-                # Close .env file
-                env_file_name.close()
-
-                # Decipher to plaintext
-                plaintext = self.decode(ciphertext)
+                ciphertext = env_file_name.read()       # Read ciphertext from .env
+                plaintext = self.decode(ciphertext)     # Encode to ciphertext
 
                 # Save enviroment variables to class
                 try:
                     self.variables = json.loads(plaintext)
                 except:
-                    loghandler = logging_handler.LogHandler()
-                    loghandler.print_log(
-                        "Failed to read enviroment file! Try deleting file and re-create it. Exiting program..."
-                    )
-                    sys.exit(1)
+                    logging.debug("Failed to parse enviroment file!")
 
-    def write_env_contents(self):
+    def write_enviroment_variables(self):
         """
         Write enviroment variables to .env file
         """
-
         # Enviroment variables to json string
         json_env = json.dumps(self.variables)
 
@@ -155,37 +124,9 @@ class EnvHandler:
         with open(
             os.path.join(self.root_path, ".env"), "w", encoding="utf-8"
         ) as env_file_name:
-            # Encode to ciphertext
-            ciphertext = self.encode(json_env)
-
-            # Write ciphertext to .env
-            env_file_name.write(ciphertext)
-
-            # Close .env file
-            env_file_name.close()
-
-    def prompt_new_env(self):
-        """
-        Prompt user to enter new enviroment variables
-        """
-
-        # Get enivorment variables to prompt user
-        names, descriptions = self.getenviroment_variables_list()
-
-        # Clear old variables
-        print("Setting new enviroment variables...")
-        self.variables.clear()
-
-        # Ask user for variables
-        for name, description in zip(names, descriptions):
-            if name == "WEBHALLEN_PASSWORD":
-                variable = getpass.getpass(prompt=(description + ": "))
-            else:
-                variable = input(description + ": ")
-            self.variables[name] = variable
-
-        if self.get_variable("SAVE_ENV") == "y":
-            self.write_env_contents()
+            
+            ciphertext = self.encode(json_env)  # Encode to ciphertext
+            env_file_name.write(ciphertext)     # Write ciphertext to .env
 
     def get_variable(self, variable_name):
         """
