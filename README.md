@@ -33,17 +33,16 @@ Run-time             |  Logs
 | Command Line Option | Description |
 |  :---  |  :---:  |
 |-h --help | Show help message and exit |
-|-l log_level --log-level log_level| Log level options: [DEBUGV, DEBUG, INFO, WARNING, ERROR, CRITICAL] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
+|-e email | Email used to login into Webhallen |
+|-p password | Password used to login into Webhallen |
+|-s  | Save and encrypt login credentials for future use. |
+|-l log_level | Log level options: [DEBUGV, DEBUG, INFO, WARNING, ERROR, CRITICAL] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
 
 
-## Enviroment variables
+## Enviroment file
 
-At first run, or if enviroment file is missing/corrupt. You will be prompted for variables to run the script. 
-| Variable name | Value | Description |
-| :---         |     :---:      |         :---  |
-|WEBHALLEN_USERNAME| example_email     | Set your login email    |
-|WEBHALLEN_PASSWORD| example_password     | Set your login password    |
-| SAVE_ENV   | y/n    | Save enviroment variables for next future executions    |
+Enviroment file stores enviroment variables which can be used for convenience to not input email and password for each run. 
+The data is stored in `.env` file encrypted using simple Vigenère cipher using hardware adress as key. The encryption is used to store your credentials in ciphertext to stop onlookers. However it is still not safe storage, if your system is compromised the credentials can be extracted with some effort.
 
 ## Setting up scheduled task
 
