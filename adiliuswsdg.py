@@ -166,15 +166,12 @@ DEBUGV also prints username, password, and userid.""",
     )
     args = parser.parse_args()
 
-    # Get log level variable
-    log_level = (args.log_level).upper()
 
     # Setup logging
-    filename = os.path.join(
-        Path(__file__).parent, "adiliuswsdg.log"
-    )  # Get path to log file
-    if not logging_handler.setup_logging(logfile_file=filename, log_level=log_level):
-        print("Failed to setup logging.")
+    log_level = (args.log_level).upper()    # Get log level variable
+    filename = os.path.join(Path(__file__).parent, "adiliuswsdg.log")  # Get path to log file
+    logging_handler.setup_logging(logfile_file=filename, log_level=log_level)
+    
 
     # Start enviroment handler globally
     EnvHandler = enviroment_handler.EnvHandler(email = args.email, password = args.password, store = args.store)

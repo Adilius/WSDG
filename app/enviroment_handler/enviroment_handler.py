@@ -25,33 +25,38 @@ class EnvHandler:
         self.variables = {}
         self.key = str(uuid.getnode())      # Get hardware adress as 48-bit positive integer
 
-        # Get or Create enviroment file
+        # Create enviroment file
         self.init(email, password, store)
 
     def init(self, email, password, store):
         """
         Initialize enviroment handler class
         """
+
+        # Validate command-line argument variables
+        if isinstance(email, str) and re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
+            logging.debug("Email argument valid.")
+            logging.debugv(f"Setting new email: {email}")
+            self.variables["email"] = email
+        else:
+            logging.debug("Email argument invalid.")
+            #logging.debugv(f"Retriving stored email: {self.variables['email']}")
+
+        
+        if isinstance(password, str) and len(password) >= 8:
+            logging.debug("Password argument valid.")
+            logging.debugv(f"Setting new password: {password}")
+            self.variables["password"] = password
+        else:
+            logging.debug("Password argument invalid.")
+            #logging.debugv(f"Retriving stored password: {self.variables['password']}")
+
         # Try to read enviroment file
         if self.is_enviroment_file_present():
             try:
                 self.read_env_contents()
             except FileNotFoundError:
                 logging.debug("Could not find enviroment file.")
-
-        # If command-line option email pass checks, set as new email
-        if email is not None and re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", email):
-            logging.debugv(f"Setting new email: {email}")
-            self.variables["email"] = email
-        elif 'email' in self.variables:
-            logging.debugv(f"Retriving stored email: {self.variables['email']}")
-
-        # If command-line option password pass checks, set as new password
-        if password is not None and not len(password) < 8:
-            logging.debugv(f"Setting new password: {password}")
-            self.variables["password"] = password
-        elif 'password' in self.variables:
-            logging.debugv(f"Retriving stored password: {self.variables['password']}")
 
         # Store email and password
         if store:
@@ -127,9 +132,3 @@ class EnvHandler:
             
             ciphertext = self.encode(json_env)  # Encode to ciphertext
             env_file_name.write(ciphertext)     # Write ciphertext to .env
-
-    def get_variable(self, variable_name):
-        """
-        Returns value of variable
-        """
-        return self.variables[variable_name]

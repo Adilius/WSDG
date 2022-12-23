@@ -49,35 +49,49 @@ def setup_logging(logfile_file, log_level):
     )
     log_line_date_format = "%Y-%m-%d %H:%M:%S"
 
-    # Console handler
     logger.setLevel(log_level)  # Set console log level
-    console_handler = logging.StreamHandler(
-        sys.stdout
-    )  # Setup StreamHandler (Prints to console)
-    console_formatter = LogFormatter(
-        fmt=log_line_string_format, datefmt=log_line_date_format, color=True
-    )  # Create formatter
-    console_handler.setFormatter(console_formatter)  # Set formatter
-    logger.addHandler(console_handler)  # Add to logger
 
-    # Log file handler
+    # Setup logging to console
+    console_handler = create_console_handler(log_line_string_format, log_line_date_format)
+    if console_handler:
+        logger.addHandler(console_handler)
+
+    # Setup logging to file
+    file_handler = create_file_handler(log_line_string_format, log_line_date_format, logfile_file, log_level)
+    logger.addHandler(file_handler)  # Add to logger
+
+
+def create_console_handler(log_line_string_format, log_line_date_format):
+    """
+    Create StreamHandler (Prints to console)
+    """
+    try:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_formatter = LogFormatter(fmt=log_line_string_format, datefmt=log_line_date_format, color=True)
+        console_handler.setFormatter(console_formatter)
+        return console_handler
+    except Exception as exception:
+        print(f"Failed to setup console logging: {exception}")
+        return False
+    
+    
+def create_file_handler(log_line_string_format, log_line_date_format, logfile_file, log_level):
+    """
+    Create FileHandler (Prints to file)
+    """
     try:
         logfile_handler = logging.FileHandler(logfile_file)
+
+        # Never save logging level debug and below log to file
+        if log_level in ["DEBUGV", "DEBUG"]:
+            logfile_handler.setLevel("INFO")  
+        else:
+            logfile_handler.setLevel(log_level)
+        
+        logfile_formatter = LogFormatter(fmt=log_line_string_format, datefmt=log_line_date_format, color=False)
+        logfile_handler.setFormatter(logfile_formatter)
+
+        return logfile_handler
     except Exception as exception:
-        print("Failed to set up log file: %s \n Exiting..." % str(exception))
-        sys.exit()
-
-    if log_level in ["DEBUGV", "DEBUG"]:
-        logfile_handler.setLevel(
-            "INFO"
-        )  # Never save logging level debug and below log to file
-    else:
-        logfile_handler.setLevel(log_level)
-    logfile_formatter = LogFormatter(
-        fmt=log_line_string_format, datefmt=log_line_date_format, color=False
-    )  # Create formatter
-    logfile_handler.setFormatter(logfile_formatter)  # Set formatter
-    logger.addHandler(logfile_handler)  # Add to logger
-
-    # Success
-    return True
+        logging.error(f"Failed to set up log file: {str(exception)}")
+        return False
