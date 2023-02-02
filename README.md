@@ -7,7 +7,9 @@
 
 WSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.  
 The goal is to enchance the Webhallen experience for the tech enthusiast.
-With an easy one-time setup never again miss a supply drop.  
+With an easy one-time setup never again miss a supply drop.
+
+**Currently activity drop not working due to API change**
 
 ![Python version](https://img.shields.io/badge/python-v3.9.6-blue)
 
