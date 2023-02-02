@@ -1,12 +1,11 @@
 <div align="center">
 
 ![large_2](https://user-images.githubusercontent.com/43440295/153767327-512a4741-143e-4720-90a7-c603393aba13.png)
- 
-</div>
- 
-# AdiliusWSDG: Automate your webhallen experience with Python!
 
-AdiliusWSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.  
+# Automate your webhallen experience with WSDG!
+</div>
+
+WSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.  
 The goal is to enchance the Webhallen experience for the tech enthusiast.
 With an easy one-time setup never again miss a supply drop.  
 
