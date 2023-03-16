@@ -2,14 +2,14 @@
 
 ![large_2](https://user-images.githubusercontent.com/43440295/153767327-512a4741-143e-4720-90a7-c603393aba13.png)
 
-# Automate your webhallen experience with WSDG!
+# Webhallen Supply Drop Grabber!
 </div>
 
 WSDG is a simple local Python script to automatically grab supply drops (weekly, activity, level up) for your account.  
-The goal is to enchance the Webhallen experience for the tech enthusiast.
-With an easy one-time setup never again miss a supply drop.
+The goal is to with an easy one-time setup never again miss a supply drop.
 
 **Currently activity drop not working due to API change**
+**Currently level-up drop not working due to API change**
 
 ![Python version](https://img.shields.io/badge/python-v3.9.6-blue)
 
@@ -21,21 +21,21 @@ Run-time             |  Logs
 
 
 ## Quick start
-1. Clone repository: `git clone https://github.com/Adilius/AdiliusWSDG.git`
+1. Clone repository: `git clone https://github.com/Adilius/WSDG.git`
 
-2. Change directory to repository: `cd AdiliusWSDG/`
+2. Change directory to repository: `cd WSDG/`
 
 3. Install required packages: `pip install -r .\requirements.txt`
 
-4. Run script: `python .\adiliuswsdg.py`
+4. Run script: `python .\wsdg.py`
 
 ## Command Line Arguments
 
 | Command Line Option | Description |
 |  :---  |  :---:  |
 |-h --help | Show help message and exit |
-|-e email | Email used to login into Webhallen |
-|-p password | Password used to login into Webhallen |
+|-e email | Email used to login |
+|-p password | Password used to login |
 |-s  | Save and encrypt login credentials for future use. |
 |-l log_level | Log level options: [DEBUGV, DEBUG, INFO, WARNING, ERROR, CRITICAL] <br/>DEBUG and below level logs will only be printed in console. <br/>DEBUGV also prints username, password, and userid. |
 
@@ -52,20 +52,20 @@ To setup scheduled task in linux simply use crontab jobs.
 To edit cronjobs: `crontab -e`  
 Change paths as needed.
 ```
-00 05 * * * cd /path/to/AdiliusWSDG && /usr/bin/python3 adiliuswsdg.py
+00 05 * * * cd /path/to/WSDG && /usr/bin/python3 wsdg.py
 ```
 
 ### Windows
 Copy paste to notepad.  
 Edit paths in $action.  
 Execute should path to either your global Python or to the virtual enviroment Python you use for the project.  
-Argument should path to adiliuswsdg.py file.
+Argument should path to wsdg.py file.
 ```
-$action = New-ScheduledTaskAction -Execute "path\to\python.exe" -Argument "path\to\AdiliusWSDG\adiliuswsdg.py"
+$action = New-ScheduledTaskAction -Execute "path\to\python.exe" -Argument "path\to\WSDG\wsdg.py"
 $trigger = New-ScheduledTaskTrigger -Daily -At 5:00am
 $trigger.StartBoundary = [DateTime]::Parse($trigger.StartBoundary).ToLocalTime().ToString("s")
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0
-Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -TaskName "AdiliusWSDG" -Description "Run AdiliusWSDG script daily"
+Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -TaskName "AdiliusWSDG" -Description "Run WSDG script daily"
 ```
 
 ## Contributing
