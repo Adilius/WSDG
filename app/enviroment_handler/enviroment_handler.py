@@ -132,3 +132,9 @@ class EnvHandler:
             
             ciphertext = self.encode(json_env)  # Encode to ciphertext
             env_file_name.write(ciphertext)     # Write ciphertext to .env
+
+    def get_variable(self, variable_name):
+        """
+        Returns value of variable
+        """
+        return self.variables[variable_name]
